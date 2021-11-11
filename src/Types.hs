@@ -71,7 +71,7 @@ instance Show a => Show (Definition a) where
             ++ " = {"
             ++ show b
             ++ "}"
-    show (EntryPoint f) = "[<main>]" ++ show (funName f)
+    show (EntryPoint f) = "[<main>]\n" ++ show f
 
 instance Show a => Show (CaseDef a) where
     show (CaseDef n ts p) =

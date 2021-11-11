@@ -17,9 +17,11 @@ program :: Parser [Definition String]
 program =
     (++) <$> many (enumDef <|> funDef) <*> option [] (pure <$> entryPoint)
 
+-- | main function
 entryPoint :: Parser (Definition String)
 entryPoint = EntryPoint <$> (reserved "@main" *> funDef)
 
+-- | function def
 funDef :: Parser (Definition String)
 funDef = do
     reserved "def"
@@ -32,6 +34,7 @@ funDef = do
     body <- braces expr
     pure $ FunDef f tas fps ret body
 
+-- | enum def
 enumDef :: Parser (Definition String)
 enumDef = do
     reserved "enum"
@@ -47,20 +50,24 @@ caseDef parent = do
     args <- parens $ option [] $ commaSep paramDef
     pure $ CaseDef cs args parent
 
+-- | parse type variable
 typeVars :: Parser [AType String]
 typeVars = commaSep1 $ parseType <|> (TypeParam <$> identifier)
 
+-- | parse type, primitive or enum
 parseType :: Parser (AType String)
 parseType = primitiveTypes <|> do
     ty <- identifier
     tp <- option [] $ brackets typeVars
     pure $ EnumType ty tp
 
+-- | parameter def
 paramDef :: Parser (ParamDef String)
 paramDef = ParamDef <$> identifier <*> (colon *> parseType)
 
 -- * expresions
 
+-- | constructor call (qualified)
 constrCall :: Parser (Expr String)
 constrCall = do
     f <- identifier
@@ -70,6 +77,7 @@ constrCall = do
     args <- parens (option [] $ commaSep expr)
     pure $ ConstrCall cst (EnumType f tys) args
 
+-- | function call
 call :: Parser (Expr String)
 call = do
     f    <- identifier
@@ -139,7 +147,7 @@ uOps :: Parser (Expr String) -> Parser (Expr String)
 uOps term =
     Not <$> (reservedOp "!" *> term) <|> Neg <$> (reservedOp "-" *> term)
 
--- ! let binding
+-- | seq and let binding
 seq' :: Parser (Expr String)
 seq' = bind <|> se
   where
@@ -159,10 +167,11 @@ seq' = bind <|> se
 seqRest :: Parser (Maybe (Expr String))
 seqRest = optionMaybe $ semi *> seq'
 
-
+-- | expression
 expr :: Parser (Expr String)
 expr = seq'
 
+-- | simple expr and matches
 expr' :: Parser (Expr String)
 expr' = do
     e  <- ifElse <|> term0
@@ -190,5 +199,9 @@ term4 =
 term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div)
 term6 = uOps term7 <|> term7
 term7 =
-    {- (try (reserved "()") $> LitUnit)
-        <|> -}parens expr <|> literals <|> try constrCall <|> try call <|> variable
+    (try (reserved "()") $> LitUnit)
+        <|> parens expr
+        <|> literals
+        <|> try constrCall
+        <|> try call
+        <|> variable
