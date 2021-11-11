@@ -7,8 +7,9 @@ data AType a = IntType
              | BooleanType
              | StringType
              | UnitType
-             | EnumType a [AType a]     --  ^ typename, type parameters
+             | EnumType a [AType a]     -- ^ typename, type parameters
              | TypeParam a              -- ^ type parameter
+             | Unknown                  -- ^ need to be infered (in pttern matching)
              deriving (Functor)
 
 instance Show a => Show (AType a) where
@@ -18,13 +19,16 @@ instance Show a => Show (AType a) where
     show UnitType       = "Unit"
     show (EnumType t i) = show t ++ "[" ++ (i >>= show) ++ "]"
     show (TypeParam a ) = show a
+    show Unknown        = "Unknown"
 
 data Definition a =
+    -- | enum definition
     EnumDef {
         typeName :: a,
         typeArgs :: [AType a],
         caseEnums :: [CaseDef a]
     } |
+    -- | function definition
     FunDef {
         funName :: a,
         funTypeArgs :: [AType a],
@@ -32,6 +36,7 @@ data Definition a =
         retType :: AType a,
         body :: Expr a
     } |
+    -- | main function
     EntryPoint {
         mainFunc :: Definition a
     }
@@ -121,5 +126,5 @@ data Pattern a
     = WildcardPattern
     | IdPattern a
     | LiteralPattern (Expr a)
-    | EnumPattern a (AType a) [Pattern a]
+    | EnumPattern a (AType a) [Pattern a]   -- ^ constr name, type name, pattern
     deriving (Show, Functor)

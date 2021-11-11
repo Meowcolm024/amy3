@@ -13,6 +13,8 @@ regularParse p = parse p "amy3"
 
 -- * definitions
 
+-- | parse the whole program
+--   main function must be defined at the end, and only one
 program :: Parser [Definition String]
 program =
     (++) <$> many (enumDef <|> funDef) <*> option [] (pure <$> entryPoint)
@@ -126,9 +128,10 @@ singlePattern =
         f <- identifier
         dot
         cst  <- identifier
-        tys  <- optionMaybe $ brackets typeVars
+        -- ! pattern matched polymorphic type must be inferred
+        -- tys  <- optionMaybe $ brackets typeVars
         pats <- parens (option [] $ commaSep1 singlePattern)
-        pure $ EnumPattern cst (EnumType f (fromMaybe [] tys)) pats
+        pure $ EnumPattern cst (EnumType f [Unknown]) pats
 
 -- | literals
 literals :: Parser (Expr a)
