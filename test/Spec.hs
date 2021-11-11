@@ -1,5 +1,11 @@
 import Parser
+import           System.IO
 
 main :: IO ()
-main = print $ regularParse expr
-    "a match { case Maybe.Just[Int](3) => 4 case a => 0 case Maybe.Nothing() => false}"
+main = do
+        handle   <- openFile "examples/Hello.scala" ReadMode
+        contents <- hGetContents handle
+        case regularParse program contents of
+            Left  pe  -> error $ show pe
+            Right des -> mapM_ print des
+        hClose handle

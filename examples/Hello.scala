@@ -3,12 +3,12 @@ enum Maybe[A] {
     case Just(n: A)
 }
 
-def getOr[A](m: Maybe[A], opt: A): A =
+def getOr[A](m: Maybe[A], opt: A): A ={
     m match {
-        case Nothing() => opt
-        case Just(n) => n
+        case Maybe.Nothing() => opt
+        case Maybe.Just(n) => n
     }
-
+}
 
 def safeDiv(x: Int, y: Int): Maybe[Int] = {
     if (!(y == 0)) {
@@ -19,6 +19,7 @@ def safeDiv(x: Int, y: Int): Maybe[Int] = {
 }
 
 @main
-def hello(): Unit =
+def hello(): Unit = {
     val a: Maybe[Int] = Maybe.Just[Int](3);
     print[Int](233)
+}

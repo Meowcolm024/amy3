@@ -27,10 +27,15 @@ data Definition a =
     } |
     FunDef {
         funName :: a,
+        funTypeArgs :: [AType a],
         argTypes :: [ParamDef a],
         retType :: AType a,
         body :: Expr a
-    } deriving (Functor)
+    } |
+    EntryPoint {
+        mainFunc :: Definition a
+    }
+    deriving (Functor)
 
 data CaseDef a = CaseDef
     { caseName :: a
@@ -54,18 +59,19 @@ instance Show a => Show (Definition a) where
             ++ "] { case "
             ++ intercalate "case " (map show c)
             ++ "}"
-    show (FunDef n a r b) =
+    show (FunDef n a p r b) =
         "def "
             ++ show n
             ++ "["
             ++ intercalate ", " (map show a)
             ++ "]("
-            ++ intercalate ", " (map show a)
+            ++ intercalate ", " (map show p)
             ++ "): "
             ++ show r
             ++ " = {"
             ++ show b
             ++ "}"
+    show (EntryPoint f) = "[<main>]" ++ show (funName f)
 
 instance Show a => Show (CaseDef a) where
     show (CaseDef n ts p) =

@@ -13,6 +13,40 @@ regularParse p = parse p "amy3"
 
 -- * definitions
 
+program :: Parser [Definition String]
+program =
+    (++) <$> many (enumDef <|> funDef) <*> option [] (pure <$> entryPoint)
+
+entryPoint :: Parser (Definition String)
+entryPoint = EntryPoint <$> (reserved "@main" *> funDef)
+
+funDef :: Parser (Definition String)
+funDef = do
+    reserved "def"
+    f   <- identifier
+    tas <- option [] $ brackets $ commaSep1 (TypeParam <$> identifier)
+    fps <- option [] $ parens $ option [] $ commaSep1 paramDef
+    colon
+    ret <- parseType
+    reservedOp "="
+    body <- braces expr
+    pure $ FunDef f tas fps ret body
+
+enumDef :: Parser (Definition String)
+enumDef = do
+    reserved "enum"
+    ty  <- identifier
+    tas <- option [] $ brackets $ commaSep1 (TypeParam <$> identifier)
+    cs  <- braces . many1 $ caseDef (EnumType ty tas)
+    pure $ EnumDef ty tas cs
+
+caseDef :: AType String -> Parser (CaseDef String)
+caseDef parent = do
+    reserved "case"
+    cs   <- identifier
+    args <- parens $ option [] $ commaSep paramDef
+    pure $ CaseDef cs args parent
+
 typeVars :: Parser [AType String]
 typeVars = commaSep1 $ parseType <|> (TypeParam <$> identifier)
 
