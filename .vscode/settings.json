@@ -1,0 +1,9 @@
+{
+    "files.watcherExclude": {
+        "**/target": true
+    },
+    "has-go.ghciInterpreter": "Stack/Cabal",
+    "has-go.overrideGHCiArgs": "",
+    "has-go.runFileButton": false,
+    "has-go.stackRunButton": true
+}
