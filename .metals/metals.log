@@ -1,0 +1,9 @@
+[0m2021.11.11 18:42:47 INFO  Started: Metals version 0.10.9 in workspace '/Users/yatchunglaw/VSCodeProjects/amy3' for client Visual Studio Code 1.62.1.[0m
+[0m2021.11.11 18:42:48 INFO  time: initialize in 0.74s[0m
+[0m2021.11.11 18:42:48 WARN  Build server is not auto-connectable.[0m
+[0m2021.11.11 18:42:48 WARN  no build tool detected in workspace '/Users/yatchunglaw/VSCodeProjects/amy3'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. [0m
+[0m2021.11.11 18:42:48 WARN  no build target for: /Users/yatchunglaw/VSCodeProjects/amy3/examples/Hello.scala[0m
+[0m2021.11.11 18:42:50 INFO  no build target: using presentation compiler with only scala-library: 3.1.0[0m
+[0m2021.11.11 18:42:51 INFO  time: code lens generation in 2.52s[0m
+11月 11, 2021 7:35:32 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+資訊: Unsupported notification method: $/setTrace

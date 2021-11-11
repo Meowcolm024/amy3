@@ -128,3 +128,10 @@ data Pattern a
     | LiteralPattern (Expr a)
     | EnumPattern a (AType a) [Pattern a]   -- ^ constr name, type name, pattern
     deriving (Show, Functor)
+
+-- | unique id for each names
+data Idx = Idx
+    { getName :: String
+    , getId   :: Int
+    }
+    deriving Show
