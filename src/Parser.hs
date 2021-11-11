@@ -1,102 +1,160 @@
 module Parser where
 
 import           Data.Functor                   ( ($>) )
+import           Data.Maybe                     ( fromMaybe )
+import           Lexer
 import           Text.Parsec
 import qualified Text.Parsec.Token             as P
 import           Text.ParserCombinators.Parsec  ( Parser )
 import           Types
 
-langDef :: P.LanguageDef a
-langDef = P.LanguageDef
-    { P.commentStart    = "/*"
-    , P.commentEnd      = "*/"
-    , P.commentLine     = "//"      -- it is the case in FSharp
-    , P.nestedComments  = False
-    , P.identStart      = letter
-    , P.identLetter     = alphaNum
-    , P.opStart         = oneOf "+-*/=:<>|&!"
-    , P.opLetter        = oneOf "+-*/=:<>|&!"
-    , P.reservedNames   = [ "enum"
-                          , "case"
-                          , "val"
-                          , "def"
-                          , "match"
-                          , "if"
-                          , "else"
-                          , "true"
-                          , "false"
-                          , "Boolean"
-                          , "Int"
-                          , "String"
-                          , "Unit"
-                          , "error"
-                          , "_"     -- wild card
-                          , "()"    -- unit type
-                          , "@main"
-                          ]
-    , P.reservedOpNames = [ "=>"    -- case _ =>
-                          , "++"    -- string concat
-                          , "||"    -- or
-                          , "&&"    -- and
-                          , "+"     -- add
-                          , "-"     -- minus / neg
-                          , "*"     -- mult
-                          , "/"     -- div
-                          , "=="    -- equal
-                          , "="     -- binding
-                          , "<"     -- lt
-                          , "<="    -- le
-                          ]
-    , P.caseSensitive   = True
-    }
+regularParse :: Parser a -> String -> Either ParseError a
+regularParse p = parse p "amy3"
 
-lexer = P.makeTokenParser langDef
+-- * definitions
 
--- | parse ()
-parens :: Parser a -> Parser a
-parens = P.parens lexer
+typeVars :: Parser [AType String]
+typeVars = commaSep1 $ parseType <|> (TypeParam <$> identifier)
 
--- | parse []
-brackets :: Parser a -> Parser a
-brackets = P.brackets lexer
+parseType :: Parser (AType String)
+parseType = primitiveTypes <|> do
+    ty <- identifier
+    tp <- option [] $ brackets typeVars
+    pure $ EnumType ty tp
 
--- | parse {}
-braces :: Parser a -> Parser a
-braces = P.braces lexer
+paramDef :: Parser (ParamDef String)
+paramDef = ParamDef <$> identifier <*> (colon *> parseType)
 
-identifier :: Parser String
-identifier = P.identifier lexer
+-- * expresions
 
-reserved :: String -> Parser ()
-reserved = P.reserved lexer
+constrCall :: Parser (Expr String)
+constrCall = do
+    f <- identifier
+    dot
+    cst  <- identifier
+    tys  <- option [] $ brackets typeVars
+    args <- parens (option [] $ commaSep expr)
+    pure $ ConstrCall cst (EnumType f tys) args
 
-reservedOp :: String -> Parser ()
-reservedOp = P.reservedOp lexer
+call :: Parser (Expr String)
+call = do
+    f    <- identifier
+    tys  <- option [] $ brackets typeVars
+    args <- parens (option [] $ commaSep expr)
+    pure $ Call f tys args
 
-whiteSpace :: Parser ()
-whiteSpace = P.whiteSpace lexer
+-- | if then else
+ifElse :: Parser (Expr String)
+ifElse = do
+    reserved "if"
+    p <- parens expr
+    x <- braces expr
+    reserved "else"
+    IfElse p x <$> braces expr
 
-primitiveTypes :: Parser (AType a)
-primitiveTypes =
-    reserved "Int"
-        $>  IntType
-        <|> reserved "Boolean"
-        $>  BooleanType
-        <|> reserved "String"
-        $>  StringType
-        <|> reserved "Unit"
-        $>  UnitType
+-- | let binding
+letIn :: Parser (String, AType String, Expr String)
+letIn = do
+    reserved "val"
+    (ParamDef n t) <- paramDef
+    reservedOp "="
+    v <- expr'
+    pure (n, t, v)
+
+-- | pattern matching
+matches :: Parser [MatchCase String]
+matches = reserved "match" *> braces (reserved "case" *> patterns)
+
+patterns :: Parser [MatchCase String]
+patterns = sepBy1 patCase (reserved "case")
+  where
+    patCase = do
+        pat <- singlePattern
+        reservedOp "=>"
+        MatchCase pat <$> expr
+
+singlePattern :: Parser (Pattern String)
+singlePattern =
+    wildcardPattern <|> literalPattern <|> try customPattern <|> idPattern
+  where
+    wildcardPattern = reserved "_" $> WildcardPattern
+    literalPattern  = LiteralPattern <$> literals
+    idPattern       = IdPattern <$> identifier
+    customPattern   = do
+        f <- identifier
+        dot
+        cst  <- identifier
+        tys  <- optionMaybe $ brackets typeVars
+        pats <- parens (option [] $ commaSep1 singlePattern)
+        pure $ EnumPattern cst (EnumType f (fromMaybe [] tys)) pats
+
+-- | literals
+literals :: Parser (Expr a)
+literals = primitiveValues
+
+-- | error type
+bottom :: Parser (Expr String)
+bottom = Bottom <$> (reserved "error" *> expr)
+
+-- | variable
+variable :: Parser (Expr String)
+variable = Variable <$> identifier
+
+-- | unary operator
+uOps :: Parser (Expr String) -> Parser (Expr String)
+uOps term =
+    Not <$> (reservedOp "!" *> term) <|> Neg <$> (reservedOp "-" *> term)
+
+-- ! let binding
+seq' :: Parser (Expr String)
+seq' = bind <|> se
+  where
+    bind = do
+        bnd <- letIn
+        res <- seqRest
+        case res of
+            Nothing -> parserFail "Error: let-binding without following expr"
+            Just e  -> pure $ Let bnd e
+    se = do
+        ex  <- expr'
+        res <- seqRest
+        pure $ case res of
+            Nothing -> ex
+            Just e  -> Seq ex e
+
+seqRest :: Parser (Maybe (Expr String))
+seqRest = optionMaybe $ semi *> seq'
 
 
-primitiveValues :: Parser (Expr a)
-primitiveValues =
-    reserved "true"
-        $>  LitBool True
-        <|> reserved "false"
-        $>  LitBool False
-        <|> reserved "()"
-        $>  LitUnit
-        <|> LitInt
-        <$> P.natural lexer
-        <|> LitString
-        <$> P.stringLiteral lexer
+expr :: Parser (Expr String)
+expr = seq'
+
+expr' :: Parser (Expr String)
+expr' = do
+    e  <- ifElse <|> term0
+    ms <- many matches
+    pure $ case ms of
+        [] -> e
+        xs -> foldl Match e xs
+
+-- | binary operators
+term0 = term1 `chainl1` (reservedOp "||" $> Or)
+term1 = term2 `chainl1` (reservedOp "&&" $> And)
+term2 = term3 `chainl1` (reservedOp "==" $> Equals)
+term3 =
+    term4
+        `chainl1` (reservedOp "<" $> LessThan <|> reservedOp "<=" $> LessEqual)
+term4 =
+    term5
+        `chainl1` (   reservedOp "+"
+                  $>  Plus
+                  <|> reservedOp "-"
+                  $>  Minus
+                  <|> reservedOp "++"
+                  $>  Concat
+                  )
+term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div)
+term6 = uOps term7 <|> term7
+term7 =
+    {- (try (reserved "()") $> LitUnit)
+        <|> -}parens expr <|> literals <|> try constrCall <|> try call <|> variable

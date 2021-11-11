@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 module Types where
+
 import           Data.List                      ( intercalate )
 
 data AType a = IntType
@@ -94,7 +95,9 @@ data Expr a
     | Not (Expr a)
     | Neg (Expr a)
     | -- | fun/constr call
-        Call a [Expr a]
+        Call a [AType a] [Expr a]
+    | -- | constrctor call
+        ConstrCall a (AType a) [Expr a]
     | -- | let binding: val a: t = x ; e
         Let (a, AType a, Expr a) (Expr a)
     | -- | if then else
@@ -103,8 +106,6 @@ data Expr a
         Match (Expr a) [MatchCase a]
     | -- | error expr
         Bottom (Expr a)
-    | -- | program entry point
-        Main (Expr a)
     deriving (Show, Functor)
 
 data MatchCase a = MatchCase (Pattern a) (Expr a)
@@ -114,5 +115,5 @@ data Pattern a
     = WildcardPattern
     | IdPattern a
     | LiteralPattern (Expr a)
-    | EnumPattern a [Pattern a]
+    | EnumPattern a (AType a) [Pattern a]
     deriving (Show, Functor)
