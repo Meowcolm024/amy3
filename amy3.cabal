@@ -32,6 +32,7 @@ library
       SymbolTable
       TypeChecker
       Types
+      Utils
   other-modules:
       Paths_amy3
   hs-source-dirs:

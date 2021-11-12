@@ -10,7 +10,7 @@ data AType a = IntType
              | EnumType a [AType a]     -- ^ typename, type parameters
              | TypeParam a              -- ^ type parameter
              | Unknown                  -- ^ need to be infered (in pttern matching)
-             deriving (Functor)
+             deriving (Functor, Eq)
 
 instance Show a => Show (AType a) where
     show IntType        = "Int"
@@ -43,9 +43,9 @@ data Definition a =
     deriving (Functor)
 
 data CaseDef a = CaseDef
-    { caseName :: a
-    , proTypes :: [ParamDef a]
-    , parType  :: AType a
+    { caseName :: a                 -- ^ constr name
+    , proTypes :: [ParamDef a]      -- ^ argument types
+    , parType  :: AType a           -- ^ true type 
     }
     deriving Functor
 
