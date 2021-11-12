@@ -3,6 +3,9 @@ module Types where
 
 import           Data.List                      ( intercalate )
 
+-- a program is a collection of definitions
+type Program a = [Definition a]
+
 data AType a = IntType
              | BooleanType
              | StringType

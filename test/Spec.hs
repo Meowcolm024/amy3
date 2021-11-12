@@ -10,10 +10,10 @@ main = do
     case regularParse program contents of
         Left pe -> error $ show pe
         Right des ->
-            let SymbolTable ts fs cs e = analysis des
+            let SymbolTable ts fs cs e = analyzeDef des
             in  do
                     putStrLn "<Types>" *> mapM_ print ts
-                    putStrLn "<Functions>" *> mapM_ print fs
-                    putStrLn "<Constructors>" *> mapM_ print cs
-                    putStrLn "<Main>" *> print e
+                    putStrLn "\n<Functions>" *> mapM_ print fs
+                    putStrLn "\n<Constructors>" *> mapM_ print cs
+                    putStrLn "\n<Main>" *> print e
     hClose handle

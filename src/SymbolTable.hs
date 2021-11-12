@@ -12,19 +12,18 @@ data Signature a = FunSig [AType a] [AType a] (AType a)
                  deriving (Show)
 
 -- | symbol table
+-- the symbol table is only used for global definition
 data SymbolTable a = SymbolTable
     { types        :: SymbolMap a
     , functions    :: SymbolMap a
     , constructors :: SymbolMap a
     , entry        :: Definition a
     }
-    deriving (Show)
+    deriving Show
 
 -- | prototype
--- all the 
+-- all the prototypes
 type TemplateTable = SymbolTable String
--- |concrete
-type ConcreteTable = SymbolTable Idx
 
 emptySymbolMap :: SymbolMap a
-emptySymbolMap = Map.empty 
+emptySymbolMap = Map.empty

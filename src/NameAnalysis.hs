@@ -19,7 +19,7 @@ import           Utils
 -}
 
 -- | check whether there are multiple main functions
-checkEntry :: [Definition String] -> Definition String
+checkEntry :: Program String -> Definition String
 checkEntry defs =
     let et = filter isMainDef defs
     in  if length et == 1 && validEntry (head et)
@@ -32,7 +32,7 @@ validEntry (EntryPoint (FunDef _ [] [] UnitType _)) = True
 validEntry _ = False
 
 -- | generate symbol table for types (prototype)
-addTypeTh :: [Definition String] -> SymbolMap String -> SymbolMap String
+addTypeTh :: Program String -> SymbolMap String -> SymbolMap String
 addTypeTh []                     env = env
 addTypeTh (EnumDef n tas _ : ds) env = case Map.lookup n env of
     Just c  -> error $ "[Fatal] Multiple definitions for type [" ++ n ++ "]"
@@ -60,7 +60,7 @@ addTypeConstrTh ~(EnumDef n tas cs) te = addConstrTh' cs emptySymbolMap
 
 -- | generate symbol table for type constructors (prototype)
 addConstrTh
-    :: [Definition String]      -- ^ program
+    :: Program String           -- ^ program
     -> SymbolMap String         -- ^ type symbol table
     -> SymbolMap String         -- ^ acc
     -> SymbolMap String         -- ^ constr symbol table
@@ -71,7 +71,7 @@ addConstrTh (_ : ds) te env = addConstrTh ds te env
 
 -- | generate symbol table for functions (prototype)
 addFuncTh
-    :: [Definition String]      -- ^ program
+    :: Program String           -- ^ program
     -> SymbolMap String         -- ^ type symbol table
     -> SymbolMap String         -- ^ acc
     -> SymbolMap String         -- ^ func symbol table
@@ -83,11 +83,16 @@ addFuncTh (FunDef n ta args ret _ : fs) te env =
         else error $ "[Fatal] Unexpectd type in definition [" ++ n ++ "]"
 addFuncTh (_ : fs) te env = addFuncTh fs te env
 
--- navie symbol table generation
-analysis :: [Definition String] -> SymbolTable String
-analysis defs = SymbolTable ts fs cs e
+-- symbol table generation
+-- for all the prototype definitions
+-- unfortunately, we have traversed the list 4 times orz
+analyzeDef :: Program String -> TemplateTable
+analyzeDef defs = SymbolTable ts fs cs e
   where
     ts = addTypeTh defs emptySymbolMap
     cs = addConstrTh defs ts emptySymbolMap
     fs = addFuncTh defs ts cs
     e  = checkEntry defs
+
+-- TODO: do name analysis on function body
+-- idea: just like interpreting, go over the tree

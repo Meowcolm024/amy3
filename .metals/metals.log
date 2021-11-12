@@ -87,3 +87,5 @@ Exception in thread "pool-3-thread-1" java.lang.AssertionError: NoDenotation.own
 11月 12, 2021 10:19:36 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 資訊: Unsupported notification method: $/setTrace
 [0m2021.11.12 22:27:12 WARN  no build target for: /Users/yatchunglaw/VSCodeProjects/amy3/examples/Hello.scala[0m
+[0m2021.11.12 22:29:37 WARN  no build target for: /Users/yatchunglaw/VSCodeProjects/amy3/examples/Hello.scala[0m
+[0m2021.11.12 22:29:46 WARN  no build target for: /Users/yatchunglaw/VSCodeProjects/amy3/examples/Hello.scala[0m
