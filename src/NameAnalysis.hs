@@ -103,4 +103,14 @@ analyzeDef defs = SymbolTable ts fs cs e
 
 -- name analysis on one function
 analysisFunc :: Definition String -> Env String -> a
-analysisFunc ~(FunDef n ta args ret body) (Env p g lt lv) = undefined
+analysisFunc ~(FunDef n ta args ret body) env@(Env p g lt lv) = analyze
+    body                                        -- function body
+    (Map.union (argsToEnv args) lv)             -- local var env with arguments
+  where
+    -- we don't introduce new type in the body, so type env is fixed
+    -- lookup type in local type env
+    lkt :: String -> Maybe (Signature String)
+    lkt t = lookupType t $ env { localType = Map.union (typeArgsToEnv ta) lt }
+    -- analyze expr in func body
+    analyze :: Expr String -> SymbolMap String -> a
+    analyze expr llv = undefined
