@@ -24,7 +24,7 @@ checkEntry defs =
     let et = filter isMainDef defs
     in  if length et == 1 && validEntry (head et)
             then head et
-            else error "[Fatal] Duplicate/No entry point(s) found!"
+            else error "[Fatal] Invalid entry point(s)"
 
 -- | check if the main function has valid signature
 validEntry :: Definition String -> Bool
@@ -46,7 +46,9 @@ addTypeConstrTh ~(EnumDef n tas cs) te = addConstrTh' cs emptySymbolMap
     -- env with global types and local type variables
     typeEnv = Map.union (typeArgsToEnv tas) te
     -- add constructor 
-    addConstrTh' []                       env = env
+    addConstrTh' [] env = env
+    addConstrTh' (CaseDef cn _ _ : css) env | Map.member cn env =
+        error $ "[Fatal] Redefinition of constructor [" ++ n ++ "." ++ cn ++ "]"
     addConstrTh' (CaseDef cn pds _ : css) env = case checkTypeArg pds of
         Nothing -> addConstrTh' css $ Map.insert
             cn
@@ -76,6 +78,8 @@ addFuncTh
     -> SymbolMap String         -- ^ acc
     -> SymbolMap String         -- ^ func symbol table
 addFuncTh [] _ env = env
+addFuncTh (FunDef n _ _ _ _ : fs) _ env | Map.member n env =
+    error $ "[Fatal] Multiple definitions of function [" ++ n ++ "]"
 addFuncTh (FunDef n ta args ret _ : fs) te env =
     if all ((`checkTypeEX` Map.union (typeArgsToEnv ta) te) . paramType) args
         then addFuncTh fs te
@@ -96,3 +100,7 @@ analyzeDef defs = SymbolTable ts fs cs e
 
 -- TODO: do name analysis on function body
 -- idea: just like interpreting, go over the tree
+
+-- name analysis on one function
+analysisFunc :: Definition String -> Env String -> a
+analysisFunc ~(FunDef n ta args ret body) (Env p g lt lv) = undefined

@@ -13,13 +13,16 @@ data Primitive = Primitive
     deriving Show
 
 -- | primitive functions
-primitives :: Map.Map String Primitive
-primitives = Map.fromList $ zipWith
-    (\_ y -> (pName y, y))
-    [0 ..]
+primitives :: Map.Map String (Signature String)
+primitives = Map.fromList $ map
+    (\x -> (pName x, primToSig x))
     [ Primitive "print"    [StringType] UnitType
     , Primitive "readLine" []           StringType
     ]
+
+-- | convert primitives to signatures
+primToSig :: Primitive -> Signature String
+primToSig (Primitive n a r) = FunSig [] a r
 
 -- | convert primitives to defintions
 primToDef :: Primitive -> Definition String
@@ -28,9 +31,6 @@ primToDef (Primitive n a r) = FunDef n
                                      (zipWith ParamDef (show <$> [0 ..]) a)
                                      r
                                      (Bottom (LitString "<primitives>"))
-
--- | env
-type Env = Map.Map String
 
 isTypeDef :: Definition a -> Bool
 isTypeDef EnumDef{} = True
