@@ -125,9 +125,9 @@ singlePattern =
     literalPattern  = LiteralPattern <$> literals
     idPattern       = IdPattern <$> identifier
     customPattern   = do
-        f <- identifier
+        f <- identifier         -- type
         dot
-        cst  <- identifier
+        cst  <- identifier      -- constr
         -- ! pattern matched polymorphic type must be inferred
         -- tys  <- optionMaybe $ brackets typeVars
         pats <- parens (option [] $ commaSep1 singlePattern)

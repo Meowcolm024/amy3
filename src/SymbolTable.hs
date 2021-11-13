@@ -41,8 +41,12 @@ data Env a = Env
     deriving Show
 
 -- | lookup types, starting from local type variables
+-- ! this function does not check type application
 lookupType :: Ord a => a -> Env a -> Maybe (Signature a)
 lookupType k (Env _ g lt _) = Map.lookup k lt <|> Map.lookup k (types g)
+
+getTypeEnv :: Ord a => Env a -> SymbolMap a
+getTypeEnv (Env _ g lt _) = Map.union lt (types g)
 
 -- | lookup constructors
 lookupConstr :: Ord k => k -> Env k -> Maybe (Signature k)
@@ -53,3 +57,15 @@ lookupConstr k (Env _ g _ _) = Map.lookup k (constructors g)
 lookupValFun :: Ord k => k -> Env k -> Maybe (Signature k)
 lookupValFun k (Env p g _ lv) =
     Map.lookup k lv <|> Map.lookup k (functions g) <|> Map.lookup k p
+
+-- | concrete type and function collected
+-- it will be generated during type checking
+-- used for code generation
+data SymbolIns a = SymbolIns
+    { insTypes :: [Signature a]     -- ^ concrete types
+    , insFuncs :: [Signature a]     -- ^ concrete functions
+    }
+    deriving Show
+
+emptyIns :: SymbolIns a
+emptyIns = SymbolIns [] []

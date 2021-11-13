@@ -17,6 +17,7 @@ primitives :: Map.Map String (Signature String)
 primitives = Map.fromList $ map
     (\x -> (pName x, primToSig x))
     [ Primitive "print"    [StringType] UnitType
+    , Primitive "println"  [StringType] UnitType
     , Primitive "readLine" []           StringType
     ]
 
@@ -39,6 +40,10 @@ isTypeDef _         = False
 isMainDef :: Definition a -> Bool
 isMainDef (EntryPoint _) = True
 isMainDef _              = False
+
+isFuncDef :: Definition a -> Bool
+isFuncDef FunDef{} = True
+isFuncDef _        = False
 
 -- | check if is a valid type (in env)
 checkTypeEX :: AType String -> SymbolMap String -> Bool
