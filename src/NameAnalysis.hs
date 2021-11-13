@@ -2,23 +2,9 @@ module NameAnalysis where
 
 import           Data.List
 import qualified Data.Map                      as Map
-import           Debug.Trace
 import           SymbolTable
 import           Types
 import           Utils
-
-{-
-    identifier/variable is counted separated in env
-    variable, func param, type variable
-
-    string -> idx
-
-    we need to dynamically add type and functions to symbol table
-
-    first add templates to symbol table
-    then add types and functions to symbol table according their actual types
-
--}
 
 -- | check whether there are multiple main functions
 checkEntry :: Program String -> Definition String
@@ -195,6 +181,7 @@ analysisFunc ~(FunDef n ta args ret body) env@(Env p g lt lv) = analyze
     analyzeMatch (MatchCase pat ex) lenv@(Env _ _ lt' lv') =
         analyze ex (analyzePattern pat lenv)
 
+    -- | add pattern-binded var to env
     analyzePattern :: Pattern String -> Env String -> Env String
     analyzePattern pats lenv@(Env _ _ _ lv') = case pats of
         WildcardPattern                    -> lenv

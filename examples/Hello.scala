@@ -21,6 +21,7 @@ def safeDiv(x: Int, y: Int): Maybe[Int] = {
 @main
 def hello(): Unit = {
   val a: Maybe[Int] = Maybe.Just[Int](3);
-  println(safeDiv(getOr[Int](a, 5), 0));
+  val b: Int = 2+3;
+  println(safeDiv(getOr[Int](a, b), 0));
   println(-1 == (5 * 6) && !true)
 }

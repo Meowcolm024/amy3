@@ -16,5 +16,5 @@ main = do
             putStrLn "\n<Functions>" *> mapM_ print fs
             putStrLn "\n<Constructors>" *> mapM_ print cs
             putStrLn "\n<Main>" *> print e
-            putStrLn "\n --- \n" *> mapM_ print p
+            putStrLn "\n --- \n" *> print p
     hClose handle

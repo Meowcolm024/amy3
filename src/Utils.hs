@@ -50,9 +50,10 @@ checkTypeEX :: AType String -> SymbolMap String -> Bool
 checkTypeEX (TypeParam a  ) env = Map.member a env
 checkTypeEX (EnumType n as) env = all (`Map.member` env) (n : typeVars as)
   where
-    typeVars []                 = []
-    typeVars (TypeParam t : ts) = t : typeVars ts
-    typeVars (_           : ts) = typeVars ts
+    typeVars []                   = []
+    typeVars (TypeParam t   : ts) = t : typeVars ts
+    typeVars (EnumType t as : ts) = t : typeVars as ++ typeVars ts  -- expand nested types
+    typeVars (_             : ts) = typeVars ts
 checkTypeEX _ _ = True                                  -- primitive types
 
 -- | convert type variable list to symbol table
