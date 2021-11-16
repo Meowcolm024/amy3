@@ -122,9 +122,10 @@ singlePattern =
     wildcardPattern <|> literalPattern <|> try customPattern <|> idPattern
   where
     wildcardPattern = reserved "_" $> WildcardPattern
-    literalPattern  = LiteralPattern <$> literals
-    idPattern       = IdPattern <$> identifier
-    customPattern   = do
+    literalPattern =
+        LiteralPattern <$> (try (reserved "()") $> LitUnit <|> literals)
+    idPattern     = IdPattern <$> identifier
+    customPattern = do
         f <- identifier         -- type
         dot
         cst  <- identifier      -- constr

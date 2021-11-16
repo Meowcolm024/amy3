@@ -6,9 +6,9 @@ import           Types
 
 -- | primitive functions
 data Primitive = Primitive
-    { pName :: String
-    , pArgs :: [AType String]
-    , pRet  :: AType String
+    { pName :: String               -- ^ function name
+    , pArgs :: [AType String]       -- ^ arg types
+    , pRet  :: AType String         -- ^ return type
     }
     deriving Show
 
@@ -24,14 +24,6 @@ primitives = Map.fromList $ map
 -- | convert primitives to signatures
 primToSig :: Primitive -> Signature String
 primToSig (Primitive n a r) = FunSig [] a r
-
--- | convert primitives to defintions
-primToDef :: Primitive -> Definition String
-primToDef (Primitive n a r) = FunDef n
-                                     []
-                                     (zipWith ParamDef (show <$> [0 ..]) a)
-                                     r
-                                     (Bottom (LitString "<primitives>"))
 
 isTypeDef :: Definition a -> Bool
 isTypeDef EnumDef{} = True

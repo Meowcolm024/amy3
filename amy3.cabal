@@ -41,6 +41,7 @@ library
       base >=4.7 && <5
     , containers >=0.6.5 && <0.7
     , parsec >=3.1 && <4
+    , transformers >=0.5.6 && <0.6
   default-language: Haskell2010
 
 executable amy3-exe
@@ -55,6 +56,7 @@ executable amy3-exe
     , base >=4.7 && <5
     , containers >=0.6.5 && <0.7
     , parsec >=3.1 && <4
+    , transformers >=0.5.6 && <0.6
   default-language: Haskell2010
 
 test-suite amy3-test
@@ -70,4 +72,5 @@ test-suite amy3-test
     , base >=4.7 && <5
     , containers >=0.6.5 && <0.7
     , parsec >=3.1 && <4
+    , transformers >=0.5.6 && <0.6
   default-language: Haskell2010

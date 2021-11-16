@@ -1,3 +1,5 @@
+import           Control.Monad
+import qualified Data.Map                      as Map
 import           NameAnalysis
 import           Parser
 import           SymbolTable
@@ -10,11 +12,11 @@ main = do
     case regularParse program contents of
         Left  pe  -> error $ show pe
         Right des -> do
-            let (p, t) = analyzeProgram des
-            let SymbolTable ts fs cs e = t
+            let SymbolTable ts fs cs e = analyzeDef des
             putStrLn "<Types>" *> mapM_ print ts
             putStrLn "\n<Functions>" *> mapM_ print fs
-            putStrLn "\n<Constructors>" *> mapM_ print cs
+            putStrLn "\n<Constructors>"
+            forM_ (Map.toList cs) $ \(k, v) -> do
+                putStrLn $ k ++ " -> " ++ show v
             putStrLn "\n<Main>" *> print e
-            putStrLn "\n --- \n" *> print p
     hClose handle

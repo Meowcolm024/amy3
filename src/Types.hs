@@ -133,8 +133,15 @@ data Pattern a
     deriving (Show, Functor)
 
 -- | unique id for each names
+-- replace the String in Expr after name analysis
 data Idx = Idx
-    { getName :: String
-    , getId   :: Int
+    { nameIdx :: String
+    , idIdx   :: Int
     }
     deriving Show
+
+instance Eq Idx where
+    (Idx _ i) == (Idx _ j) = i == j
+
+instance Ord Idx where
+    compare (Idx _ i) (Idx _ j) = compare i j
