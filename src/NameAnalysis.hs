@@ -124,8 +124,12 @@ addConstrs (EnumDef name targs csts : ts) = do
                             (idx + 1)
                         Just m -> do
                             -- abort when already defined
-                            -- when (isJust $ Map.lookup name parCsts) $ throwError $ "Redefinition of " ++ name
-
+                            when (isJust $ lookupConstr name caseName s)
+                                $  throwError
+                                $  "Redefinition of constructor "
+                                ++ caseName
+                                ++ " in definition of "
+                                ++ name
                             lift . put $ TableST
                                 (s
                                     { defsByName   = Map.insert
@@ -182,24 +186,25 @@ tranfromFunc (FunDef name targs params ret body : st) = do
     let ps               = trParams (zip params tps) (length targs')
     let Just fi          = lookupName name s
     lift . put $ tb { localIndex = length targs' }  -- reset local index
-    lb  <- addBindings params                        -- init local bindings
+    lb  <- addBindings params                       -- init local bindings
     tb' <- lift get                                 -- get updated table
     lift . put $ tb' { locals = Map.union lb $ Map.fromList targs' }  -- reset locals
     result <- tf body                               -- analyze body
-    rest   <- tranfromFunc st
+    rest   <- tranfromFunc st                       -- analyze rest
     pure $ FunDef fi (map (TypeParam . snd) targs') ps rt result : rest
   where
+    -- add binding s to local env
     addBindings []                       = pure Map.empty
     addBindings (ParamDef name _ : rest) = do
         t@(TableST _ _ i _) <- lift get
         lift . put $ t { localIndex = i + 1 }
         rest <- addBindings rest
         pure $ Map.insert name (Idx name i) rest
-
+    -- transform paramdef to idx
     trParams [] _ = []
     trParams ((ParamDef n _, ty) : rs) i =
         ParamDef (Idx n i) ty : trParams rs (i + 1)
-
+    -- | transform expression
     tf :: Expr String -> Analysis (Expr Idx)
     tf expr = do
         tb@(TableST s@(SymbolTable dn ty f c) env lidx idx) <- lift get
@@ -237,20 +242,20 @@ tranfromFunc (FunDef name targs params ret body : st) = do
                         ++ " for type "
                         ++ ty
             Let (ParamDef name t) ex ex' -> do
-                    let name' = Idx name lidx
-                    e1 <- tf ex
-                    lift . put $ tb { locals     = Map.insert name name' env
-                                    , localIndex = lidx + 1
-                                    }
-                    Let
-                        <$> (ParamDef name' <$> refactorType t)
-                        <*> pure e1
-                        <*> tf ex'
+                let name' = Idx name lidx
+                e1 <- tf ex
+                lift . put $ tb { locals     = Map.insert name name' env
+                                , localIndex = lidx + 1
+                                }
+                Let
+                    <$> (ParamDef name' <$> refactorType t)
+                    <*> pure e1
+                    <*> tf ex'
             IfElse ex ex' ex3 -> IfElse <$> tf ex <*> tf ex' <*> tf ex3
             Match ex mcs      -> Match <$> tf ex <*> traverse handleCases mcs
             Bottom ex         -> Bottom <$> tf ex
             _                 -> throwError "???"
-
+    -- transform types
     refactorType :: AType String -> Analysis (AType Idx)
     refactorType (TypeParam t) = do
         tb <- lift get

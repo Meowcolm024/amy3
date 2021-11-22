@@ -30,10 +30,12 @@ instance Show SymbolTable where
         cs = map (\(k, v) -> show k ++ ":\n" ++ unlines (map g $ Map.toList v))
             $ Map.toList c
 
+-- | get index from name
 lookupName :: String -> SymbolTable -> Maybe Idx
 lookupName name table = Map.lookup name (defsByName table)
 
--- lookupConstr :: String -> String -> SymbolTable -> Maybe (Signature Idx)
+-- | lookup constructor in table
+lookupConstr :: String -> String -> SymbolTable -> Maybe (Idx, Signature Idx)
 lookupConstr tn cn table = do
     tid    <- lookupName tn table
     cid    <- lookupName (tn ++ "." ++ cn) table
@@ -41,15 +43,16 @@ lookupConstr tn cn table = do
     result <- Map.lookup cid csts
     pure (cid, result)
 
--- table used in state monad
+-- | table used in state monad
 data TableST = TableST
-    { table      :: SymbolTable
-    , locals     :: Map.Map String Idx
-    , localIndex :: Int
-    , index      :: Int
+    { table      :: SymbolTable             -- ^ symbol table
+    , locals     :: Map.Map String Idx      -- ^ local env
+    , localIndex :: Int                     -- ^ local index counter
+    , index      :: Int                     -- ^ global index counter
     }
     deriving Show
 
+-- | empty table for state
 emptyTable :: TableST
 emptyTable = TableST
     (SymbolTable (Map.fromList pds) Map.empty (Map.fromList pfs) Map.empty)
@@ -61,9 +64,6 @@ emptyTable = TableST
         (\(n, s) y -> ((n, Idx n (negate y)), (Idx n (negate y), s)))
         (Map.toList primitives)
         [1 ..]
-
-incIdx :: TableST -> TableST
-incIdx t@(TableST _ _ _ i) = t { index = i + 1 }
 
 -- | primitive functions
 data Primitive a = Primitive

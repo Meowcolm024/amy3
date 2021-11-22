@@ -13,10 +13,11 @@ data AType a = IntType
              | UnitType
              | EnumType a [AType a]     -- ^ typename, type parameters
              | TypeParam a              -- ^ type parameter
-            --  | Unknown                  -- ^ need to be infered (in pttern matching)
-             | AnyType                  -- ^ after type erasure
+             | Counted Int              -- ^ used only in constrint generation
+             | AnyType                  -- ^ used only after type erasure
              deriving (Functor, Eq)
 
+-- | definitions
 data Definition a =
     -- | enum definition
     EnumDef {
@@ -38,6 +39,7 @@ data Definition a =
     }
     deriving (Functor)
 
+-- | type constructor definition
 data CaseDef a = CaseDef
     { caseName :: a                 -- ^ constr name
     , proTypes :: [ParamDef a]      -- ^ argument types
@@ -45,6 +47,7 @@ data CaseDef a = CaseDef
     }
     deriving Functor
 
+-- | paramter definition
 data ParamDef a = ParamDef
     { paramName :: a
     , paramType :: AType a
@@ -71,7 +74,7 @@ data Expr a
     | Not (Expr a)
     | Neg (Expr a)
     | -- | fun/constr call
-        Call a [Expr a]           -- ! type arg no longer needed
+        Call a [Expr a]
     | -- | constrctor call
         ConstrCall a (AType a) [Expr a]
     | -- | let binding: val a: t = x ; e
@@ -87,6 +90,7 @@ data Expr a
 data MatchCase a = MatchCase (Pattern a) (Expr a)
     deriving Functor
 
+-- | patterns
 data Pattern a
     = WildcardPattern
     | IdPattern a
@@ -94,7 +98,7 @@ data Pattern a
     | EnumPattern a (AType a) [Pattern a]   -- ^ constr name, type name, pattern
     deriving (Functor)
 
--- * "not" pretty print
+-- * "not" pretty printing
 
 instance Show a => Show (AType a) where
     show IntType        = "Int"
@@ -103,7 +107,7 @@ instance Show a => Show (AType a) where
     show UnitType       = "Unit"
     show (EnumType t i) = show t ++ "[" ++ intercalate ", " (map show i) ++ "]"
     show (TypeParam a ) = show a
-    -- show Unknown        = "Unknown"
+    show (Counted   i ) = "Counter " ++ show i
     show AnyType        = "Any"
 
 instance Show a => Show (Definition a) where
