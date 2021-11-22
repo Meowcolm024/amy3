@@ -1,0 +1,57 @@
+<Types>
+Maybe<0>:
+  Nothing<3> := ConstrSig [A<0>] [] Maybe<0>[A<0>]
+  Just<4> := ConstrSig [A<0>] [A<0>[]] Maybe<0>[A<0>]
+
+List<1>:
+  Nil<5> := ConstrSig [A<0>] [] List<1>[A<0>]
+  Cons<6> := ConstrSig [A<0>] [A<0>[],List<1>[A<0>[]]] List<1>[A<0>]
+
+Pair<2>:
+  Pair<7> := ConstrSig [A<0>,B<1>] [A<0>[],B<1>[]] Pair<2>[A<0>, B<1>]
+
+
+<Functions>
+  readLine<-3> := FunSig [] [] String
+  println<-2> := FunSig [] [String] Unit
+  print<-1> := FunSig [] [String] Unit
+  getOr<8> := FunSig [A<0>] [Maybe<0>[A<0>[]],A<0>[]] A<0>[]
+  listToPair<9> := FunSig [A<0>] [List<1>[A<0>[]]] Maybe<0>[Pair<2>[A<0>[], List<1>[A<0>[]]]]
+  swap<10> := FunSig [A<0>,B<1>] [Pair<2>[A<0>[], B<1>[]]] Pair<2>[B<1>[], A<0>[]]
+  safeDiv<11> := FunSig [] [Int,Int] Maybe<0>[Int]
+  hello<12> := FunSig [] [] Unit
+
+def getOr<8>[A<0>](m<1>: Maybe<0>[A<0>[]], opt<2>: A<0>[]): A<0>[] = {
+(m<1>) match {
+case Maybe<0>.Nothing<3>() => opt<2>
+case Maybe<0>.Just<4>(n<3>) => n<3>
+}
+}
+def listToPair<9>[A<0>](l<1>: List<1>[A<0>[]]): Maybe<0>[Pair<2>[A<0>[], List<1>[A<0>[]]]] = {
+(l<1>) match {
+case List<1>.Nil<5>() => Maybe<0>.Nothing<3>()
+case List<1>.Cons<6>(h<2>, t<3>) => Maybe<0>.Just<4>(Pair<2>.Pair<7>(h<2>, t<3>))
+}
+}
+def swap<10>[A<0>, B<1>](p<2>: Pair<2>[A<0>[], B<1>[]]): Pair<2>[B<1>[], A<0>[]] = {
+(p<2>) match {
+case Pair<2>.Pair<7>(x<3>, y<4>) => Pair<2>.Pair<7>(y<4>, x<3>)
+}
+}
+def safeDiv<11>[](x<0>: Int, y<1>: Int): Maybe<0>[Int] = {
+if (!((y<1>) == (0))) {
+Maybe<0>.Just<4>((x<0>) / (y<1>))
+} else {
+Maybe<0>.Nothing<3>()
+}
+}
+[<main>]
+def hello<12>[](): Unit = {
+val a<0>: Maybe<0>[Int] = Maybe<0>.Just<4>(3);
+val b<1>: Int = (2) + (3);
+val l<2>: List<1>[Boolean] = List<1>.Cons<6>(True, List<1>.Cons<6>(False, List<1>.Nil<5>()));
+println<-2>(safeDiv<11>(getOr<8>(a<0>, b<1>), 0));
+val b<3>: Boolean = (True) || (False);
+println<-2>(((-(1)) == ((5) * (6))) && (!(b<3>)));
+println<-2>(listToPair<9>(l<2>))
+}

@@ -46,6 +46,7 @@ def hello(): Unit = {
   val b: Int = 2+3;
   val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));
   println(safeDiv(getOr(a, b), 0));
-  println(-1 == (5 * 6) && !true);
+  val b: Boolean = true || false;
+  println(-1 == (5 * 6) && !b);
   println(listToPair(l))
 }

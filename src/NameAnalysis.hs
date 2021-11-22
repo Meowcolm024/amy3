@@ -236,9 +236,7 @@ tranfromFunc (FunDef name targs params ret body : st) = do
                         ++ cs
                         ++ " for type "
                         ++ ty
-            Let (ParamDef name t) ex ex' -> case Map.lookup name env of
-                Just _  -> throwError $ "Variable already defined: " ++ name
-                Nothing -> do
+            Let (ParamDef name t) ex ex' -> do
                     let name' = Idx name lidx
                     e1 <- tf ex
                     lift . put $ tb { locals     = Map.insert name name' env
