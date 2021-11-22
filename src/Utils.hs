@@ -51,9 +51,9 @@ checkTypeEX _ _ = True                                  -- primitive types
 -- | convert type variable list to symbol table
 typeArgsToEnv :: Ord k => [AType k] -> Map.Map k (Signature k)
 typeArgsToEnv tas =
-    Map.fromList $ zipWith (\(TypeParam x) y -> (x, TypeIns y)) tas tas
+    Map.fromList $ zipWith (\(TypeParam x) y -> (x, TypeSig y)) tas tas
 
 -- | convert param defs to local bindings
 --   name -> type
 argsToEnv :: Ord k => [ParamDef k] -> Map.Map k (Signature k)
-argsToEnv = Map.fromList . map (\x -> (paramName x, TypeIns $ paramType x))
+argsToEnv = Map.fromList . map (\x -> (paramName x, TypeSig $ paramType x))

@@ -75,17 +75,17 @@ constrCall = do
     f <- identifier
     dot
     cst  <- identifier
-    tys  <- option [] $ brackets typeVars
+    -- tys  <- option [] $ brackets typeVars
     args <- parens (option [] $ commaSep expr)
-    pure $ ConstrCall cst (EnumType f tys) args
+    pure $ ConstrCall cst (EnumType f []) args  -- also ignore type args
 
 -- | function call
 call :: Parser (Expr String)
 call = do
     f    <- identifier
-    tys  <- option [] $ brackets typeVars
+    -- tys  <- option [] $ brackets typeVars
     args <- parens (option [] $ commaSep expr)
-    pure $ Call f tys args
+    pure $ Call f args
 
 -- | if then else
 ifElse :: Parser (Expr String)
@@ -97,13 +97,13 @@ ifElse = do
     IfElse p x <$> braces expr
 
 -- | let binding
-letIn :: Parser (String, AType String, Expr String)
+letIn :: Parser (ParamDef String, Expr String)
 letIn = do
     reserved "val"
-    (ParamDef n t) <- paramDef
+    p <- paramDef
     reservedOp "="
     v <- expr'
-    pure (n, t, v)
+    pure (p, v)
 
 -- | pattern matching
 matches :: Parser [MatchCase String]
@@ -132,7 +132,7 @@ singlePattern =
         -- ! pattern matched polymorphic type must be inferred
         -- tys  <- optionMaybe $ brackets typeVars
         pats <- parens (option [] $ commaSep1 singlePattern)
-        pure $ EnumPattern cst (EnumType f [Unknown]) pats
+        pure $ EnumPattern cst (EnumType f []) pats
 
 -- | literals
 literals :: Parser (Expr a)
@@ -156,11 +156,11 @@ seq' :: Parser (Expr String)
 seq' = bind <|> se
   where
     bind = do
-        bnd <- letIn
+        (p, b) <- letIn
         res <- seqRest
         case res of
             Nothing -> parserFail "Error: let-binding without following expr"
-            Just e  -> pure $ Let bnd e
+            Just e  -> pure $ Let p b e
     se = do
         ex  <- expr'
         res <- seqRest

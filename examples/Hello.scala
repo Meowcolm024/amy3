@@ -21,25 +21,25 @@ def getOr[A](m: Maybe[A], opt: A): A = {
 
 def listToPair[A](l: List[A]): Maybe[Pair[A, List[A]]] = {
   l match {
-    case List.Nil() => Maybe.Nothing[A]()
-    case List.Cons(h, t) => Maybe.Just[A](Pair.Pair[A, List[A]](h, t))
+    case List.Nil() => Maybe.Nothing()
+    case List.Cons(h, t) => Maybe.Just(Pair.Pair(h, t))
   }
 }
 
 def safeDiv(x: Int, y: Int): Maybe[Int] = {
   if (!(y == 0)) {
-    Maybe.Just[Int](x / y)
+    Maybe.Just(x / y)
   } else {
-    Maybe.Nothing[Int]()
+    Maybe.Nothing()
   }
 }
 
 @main
 def hello(): Unit = {
-  val a: Maybe[Int] = Maybe.Just[Int](3);
+  val a: Maybe[Int] = Maybe.Just(3);
   val b: Int = 2+3;
-  val l: List[Boolean] = List.Cons[Boolean](true, List.Cons[Boolean](false, List.Nil[Boolean]()));
-  println(safeDiv(getOr[Int](a, b), 0));
+  val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));
+  println(safeDiv(getOr(a, b), 0));
   println(-1 == (5 * 6) && !true);
-  println(listToPair[Boolean](l))
+  println(listToPair(l))
 }
