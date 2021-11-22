@@ -26,6 +26,12 @@ def listToPair[A](l: List[A]): Maybe[Pair[A, List[A]]] = {
   }
 }
 
+def swap[A, B](p: Pair[A, B]): Pair[B, A] = {
+  p match {
+    case Pair.Pair(x, y) => Pair.Pair(y, x)
+  }
+}
+
 def safeDiv(x: Int, y: Int): Maybe[Int] = {
   if (!(y == 0)) {
     Maybe.Just(x / y)

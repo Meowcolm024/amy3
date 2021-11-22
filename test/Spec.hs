@@ -2,7 +2,6 @@ import           Control.Monad
 import qualified Data.Map                      as Map
 import           NameAnalysis
 import           Parser
-import           SymbolTable
 import           System.IO
 
 main :: IO ()
@@ -11,6 +10,10 @@ main = do
     contents <- hGetContents handle
     case regularParse program contents of
         Left  pe  -> error $ show pe
-        Right des -> print $ testAnalysis des
-            
+        Right des -> case analyze des of
+            Right (st, pg) -> do
+                print st
+                mapM_ print pg
+            Left msg -> fail msg
+
     hClose handle

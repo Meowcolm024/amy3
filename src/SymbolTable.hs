@@ -33,15 +33,55 @@ instance Show SymbolTable where
 lookupName :: String -> SymbolTable -> Maybe Idx
 lookupName name table = Map.lookup name (defsByName table)
 
+-- lookupConstr :: String -> String -> SymbolTable -> Maybe (Signature Idx)
+lookupConstr tn cn table = do
+    tid    <- lookupName tn table
+    cid    <- lookupName (tn ++ "." ++ cn) table
+    csts   <- Map.lookup tid (constructors table)
+    result <- Map.lookup cid csts
+    pure (cid, result)
+
 -- table used in state monad
 data TableST = TableST
-    { table :: SymbolTable
-    , index :: Int
+    { table      :: SymbolTable
+    , locals     :: Map.Map String Idx
+    , localIndex :: Int
+    , index      :: Int
     }
     deriving Show
 
 emptyTable :: TableST
-emptyTable = TableST (SymbolTable Map.empty Map.empty Map.empty Map.empty) 0
+emptyTable = TableST
+    (SymbolTable (Map.fromList pds) Map.empty (Map.fromList pfs) Map.empty)
+    Map.empty
+    0
+    0
+  where
+    (pds, pfs) = unzip $ zipWith
+        (\(n, s) y -> ((n, Idx n (negate y)), (Idx n (negate y), s)))
+        (Map.toList primitives)
+        [1 ..]
 
 incIdx :: TableST -> TableST
-incIdx t@(TableST _ i) = t { index = i + 1 }
+incIdx t@(TableST _ _ _ i) = t { index = i + 1 }
+
+-- | primitive functions
+data Primitive a = Primitive
+    { pName :: String               -- ^ function name
+    , pArgs :: [AType a]       -- ^ arg types
+    , pRet  :: AType a         -- ^ return type
+    }
+    deriving Show
+
+-- | primitive functions
+primitives :: Map.Map String (Signature a)
+primitives = Map.fromList $ map
+    (\x -> (pName x, primToSig x))
+    [ Primitive "print"    [StringType] UnitType
+    , Primitive "println"  [StringType] UnitType
+    , Primitive "readLine" []           StringType
+    ]
+
+-- | convert primitives to signatures
+primToSig :: Primitive a -> Signature a
+primToSig (Primitive n a r) = FunSig [] a r
