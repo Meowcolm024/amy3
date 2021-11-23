@@ -61,14 +61,20 @@ addTypes (EnumDef name targs _ : ts) = do
 addTypes (_ : ts) = addTypes ts
 
 -- | check name in param
+-- also distinguish type variable and enum type
 checkParamName :: ParamDef String -> SymbolTable -> Either String (AType Idx)
 checkParamName p@(ParamDef _ t) tb@(SymbolTable dn ty f c) = case t of
     EnumType n args -> do
         case Map.lookup n dn of
-            Just i -> do
-                let Just (TypeSig (EnumType n targs)) = Map.lookup i ty
-                EnumType i
-                    <$> traverse (\x -> checkParamName (ParamDef "" x) tb) args
+            Just i -> case Map.lookup i ty of
+                Just (TypeSig (EnumType n' targs)) | nameIdx n' == n ->
+                    EnumType i
+                        <$> traverse
+                                (\x -> checkParamName (ParamDef "" x) tb)
+                                args
+                _ -> if not (null args)
+                    then Left $ "Type application in type variable: " ++ n
+                    else Right $ TypeParam i
             Nothing -> Left $ "Unexpected type: " ++ n
     TypeParam a -> case Map.lookup a dn of
         Just i  -> Right $ TypeParam i
@@ -292,8 +298,24 @@ tranfromFunc (FunDef name targs params ret body : st) = do
                 EnumPattern cid pt <$> traverse handlePat pats
             _ ->
                 throwError $ "Unknown constructor " ++ cn ++ " for type " ++ tn
-
-tranfromFunc (_ : st) = tranfromFunc st
+-- transform enum definition
+tranfromFunc (EnumDef name targs cases : st) = do
+    (TableST s@(SymbolTable dn ty f c) _ _ _) <- lift get
+    let Just nidx                       = Map.lookup name dn
+    let Just (TypeSig (EnumType _ ats)) = Map.lookup nidx ty
+    let
+        Just cs = (`traverse` cases) $ \(CaseDef cname params _) -> do
+            (idx, ConstrSig ats ps par) <- lookupConstr name cname s
+            pure $ CaseDef
+                idx
+                (zipWith3 (\(ParamDef n _) i -> ParamDef (Idx n i))
+                          params
+                          [0 ..]
+                          ps
+                )
+                par
+    rest <- tranfromFunc st
+    pure $ EnumDef nidx ats cs : rest
 
 -- | do name analysis
 analyze :: Program String -> Either String (SymbolTable, Program Idx)

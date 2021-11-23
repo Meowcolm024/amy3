@@ -106,7 +106,7 @@ instance Show a => Show (AType a) where
     show StringType     = "String"
     show UnitType       = "Unit"
     show (EnumType t i) = show t ++ "[" ++ intercalate ", " (map show i) ++ "]"
-    show (TypeParam a ) = show a
+    show (TypeParam a ) = "~" ++ show a
     show (Counted   i ) = "Counter " ++ show i
     show AnyType        = "Any"
 

@@ -3,6 +3,7 @@ import qualified Data.Map                      as Map
 import           NameAnalysis
 import           Parser
 import           System.IO
+import TypeChecker
 
 main :: IO ()
 main = do
@@ -13,7 +14,10 @@ main = do
         Right des -> case analyze des of
             Right (st, pg) -> do
                 print st
+                putStrLn "\n<Program>\n"
                 mapM_ print pg
+                putStrLn "\n<Check types>\n"
+                print $ checkEnum pg st
             Left msg -> fail msg
 
     hClose handle
