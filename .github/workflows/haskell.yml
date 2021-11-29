@@ -19,7 +19,7 @@ jobs:
         cabal-version: '3.6'
         enable-stack: true
         stack-version: 'latest'
-
+    
     - name: Cache
       uses: actions/cache@v1
       env:
@@ -44,3 +44,8 @@ jobs:
       run: stack build
     - name: Stack Test
       run: stack test
+
+    - uses: actions/upload-artifact@master
+      with:
+          name: output
+          path: .stack-work
