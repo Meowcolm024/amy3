@@ -157,7 +157,7 @@ seq' = bind <|> se
   where
     bind = do
         (p, b) <- letIn
-        res <- seqRest
+        res    <- seqRest
         case res of
             Nothing -> parserFail "Error: let-binding without following expr"
             Just e  -> pure $ Let p b e
@@ -187,10 +187,24 @@ expr' = do
 -- | binary operators
 term0 = term1 `chainl1` (reservedOp "||" $> Or)
 term1 = term2 `chainl1` (reservedOp "&&" $> And)
-term2 = term3 `chainl1` (reservedOp "==" $> Equals)
+term2 =
+    term3
+        `chainl1` (   reservedOp "=="
+                  $>  Equals
+                  <|> reservedOp "!="
+                  $>  (\x y -> Not (Equals x y))
+                  )
 term3 =
     term4
-        `chainl1` (reservedOp "<" $> LessThan <|> reservedOp "<=" $> LessEqual)
+        `chainl1` (   reservedOp "<"
+                  $>  LessThan
+                  <|> reservedOp "<="
+                  $>  LessEqual
+                  <|> reservedOp ">"
+                  $>  (\x y -> Not (LessEqual x y))
+                  <|> reservedOp ">="
+                  $>  (\x y -> Not (LessThan x y))
+                  )
 term4 =
     term5
         `chainl1` (   reservedOp "+"

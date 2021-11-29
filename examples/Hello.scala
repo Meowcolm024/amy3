@@ -53,7 +53,7 @@ def hello(): Unit = {
   val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));
   val cp: Pair[Color, Maybe[Color]] = Pair.Pair(Color.Red(), Maybe.Just(Color.Blue()));
   println(safeDiv(getOr(a, b), 0));
-  val b: Boolean = true || false;
-  println(-1 == (5 * 6) && !b);
+  val b: Boolean = true || false && (4 > 3) || !((1+1) >= 3);
+  println(-1 != (5 * -6) && b);
   println(listToPair(l))
 }
