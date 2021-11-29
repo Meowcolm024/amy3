@@ -3,6 +3,12 @@ enum Maybe[A] {
   case Just(n: A)
 }
 
+enum Color {
+  case Red()
+  case Green()
+  case Blue()
+}
+
 enum List[A] {
   case Nil()
   case Cons(head: A, tail: List[A])
@@ -45,6 +51,7 @@ def hello(): Unit = {
   val a: Maybe[Int] = Maybe.Just(3);
   val b: Int = 2+3;
   val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));
+  val cp: Pair[Color, Maybe[Color]] = Pair.Pair(Color.Red(), Maybe.Just(Color.Blue()));
   println(safeDiv(getOr(a, b), 0));
   val b: Boolean = true || false;
   println(-1 == (5 * 6) && !b);
