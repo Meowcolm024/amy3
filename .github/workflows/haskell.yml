@@ -9,15 +9,17 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-haskell@v1
       with:
-        ghc-version: '8.10.3'
-        cabal-version: '3.2'
-
+        ghc-version: '8.10.7'
+        cabal-version: '3.6'
+        enable-stack: true
+        stack-version: 'latest'
+    
     - name: Cache
       uses: actions/cache@v1
       env:
@@ -38,3 +40,12 @@ jobs:
       run: cabal build --enable-tests --enable-benchmarks all
     - name: Run tests
       run: cabal test all
+    - name: Stack Build
+      run: stack build
+    - name: Stack Test
+      run: stack test
+
+    - uses: actions/upload-artifact@master
+      with:
+          name: output
+          path: .stack-work
