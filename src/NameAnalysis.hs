@@ -15,11 +15,14 @@ import           Utils                          ( isMainDef )
 
 type Analysis a = ExceptT String (State TableST) a
 
--- | check whether there are multiple main functions
-checkEntry :: Program String -> Either String (Definition String)
-checkEntry defs = if length et == 1 && validEntry (head et)
-    then pure $ head et
-    else Left "Invalid entry point(s)"
+-- | check whether there are multiple main functions or invalid signature
+checkEntry :: Program String -> Analysis (Program String)
+checkEntry defs = case et of
+    []  -> pure defs
+    [e] -> if validEntry e
+        then pure defs
+        else throwError "Invalid entry point signature"
+    _ -> throwError "Multipule entry points found"
   where
     -- all the mains
     et = filter isMainDef defs
@@ -319,8 +322,9 @@ tranfromFunc (EnumDef name targs cases : st) = do
 
 -- | do name analysis
 analyze :: Program String -> Either String (SymbolTable, Program Idx)
-analyze x = evalState
+analyze p = evalState
     (runExceptT $ do
+        x    <- checkEntry p
         symb <- addTypes x *> addConstrs x *> addFuncSig x
         pg   <- tranfromFunc x
         pure (symb, pg)

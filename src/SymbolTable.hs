@@ -67,9 +67,9 @@ emptyTable = TableST
 
 -- | primitive functions
 data Primitive a = Primitive
-    { pName :: String               -- ^ function name
-    , pArgs :: [AType a]       -- ^ arg types
-    , pRet  :: AType a         -- ^ return type
+    { pName :: String           -- ^ function name
+    , pArgs :: [AType a]        -- ^ arg types
+    , pRet  :: AType a          -- ^ return type
     }
     deriving Show
 

@@ -8,16 +8,18 @@ import qualified Text.Parsec.Token             as P
 import           Text.ParserCombinators.Parsec  ( Parser )
 import           Types
 
+-- | parse the program
+parseProgram :: String -> Either ParseError (Program String)
+parseProgram = regularParse program
+
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "amy3"
 
 -- * definitions
 
--- | parse the whole program
---   main function must be defined at the end, and only one
+-- | parser for the whole program
 program :: Parser [Definition String]
-program =
-    (++) <$> many (enumDef <|> funDef) <*> option [] (pure <$> entryPoint)
+program = many (enumDef <|> funDef <|> entryPoint)
 
 -- | main function
 entryPoint :: Parser (Definition String)

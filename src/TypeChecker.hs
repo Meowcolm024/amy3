@@ -1,15 +1,15 @@
 module TypeChecker where
 
+import           Control.Monad                  ( guard )
 import           Control.Monad.Except           ( throwError )
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.State
+import           Data.Either                    ( isRight )
 import qualified Data.Map                      as Map
 import           SymbolTable                    ( Signature(TypeSig)
                                                 , SymbolTable(..)
                                                 )
 import           Types
-import Data.Either (isRight)
-import Control.Monad (guard)
 
 -- | type constraint
 data Constraint = Constraint
@@ -54,6 +54,12 @@ checkEnum (EnumDef _ _ cases : st) tb@(SymbolTable _ tys f c) = do
         in  length ats == length ats' && all checkTypeApp ats
     checkTypeApp _ = True
 checkEnum (_ : st) tb = checkEnum st tb
+
+-- | the return type of the main function will be ignored
+checkMain :: Program Idx -> Program Idx
+checkMain []                   = []
+checkMain (EntryPoint mn : rs) = EntryPoint mn { retType = AnyType } : rs
+checkMain (r             : rs) = r : checkMain rs
 
 -- | generate type constraints
 --   expr and symbol table get from name analysis
