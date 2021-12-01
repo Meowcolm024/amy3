@@ -48,6 +48,8 @@ def safeDiv(x: Int, y: Int): Maybe[Int] = {
 
 @main
 def hello(): Unit = {
+  val gb: Boolean = getOr(Maybe.Just(true), true);
+  val gi: Int = getOr(Maybe.Just(1), 3);
   val a: Maybe[Int] = Maybe.Just(3);
   val b: Int = 2+3;
   val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));

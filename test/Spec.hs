@@ -19,15 +19,11 @@ main = do
                 putStrLn "\n<Program>\n"
                 mapM_ print pg
                 putStrLn "\n<Check types>\n"
-                print $ checkEnum pg st
-
                 let tcs = runConstraint pg st
                 putStrLn "\n<Constraints>\n"
                 mapM_ (\x -> mapM_ print x *> putStrLn "--------") tcs
                 putStrLn "\n<Solved>\n"
-                forM_ (map solveConstraint tcs) $ \case
-                    Left  s -> print s *> putStrLn "--------"
-                    Right t -> mapM_ print t *> putStrLn "--------"
+                print $ checkType pg st
 
             Left msg -> hPutStrLn stderr msg *> exitFailure
 

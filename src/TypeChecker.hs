@@ -1,9 +1,13 @@
 {-# LANGUAGE TupleSections #-}
-module TypeChecker where
+module TypeChecker
+    ( checkType
+    , runConstraint
+    ) where
 
 import           Control.Monad                  ( zipWithM )
 import           Control.Monad.Trans.State
 import           Data.Either                    ( isRight )
+import           Data.Foldable                  ( traverse_ )
 import qualified Data.Map                      as Map
 import           Data.Maybe                     ( fromJust )
 import           SymbolTable                    ( Signature(..)
@@ -26,26 +30,32 @@ type CheckState a = State Int a
 -- | check type application in enum definitions
 --   others will be checked during generating constraints
 checkEnum :: Program Idx -> SymbolTable -> Either String [()]
-checkEnum []                       _                          = Right []
-checkEnum (EnumDef _ _ cases : st) tb@(SymbolTable _ tys f c) = do
-    this <- concat <$> traverse checkCase cases
-    rest <- checkEnum st tb
-    pure $ this <> rest
+checkEnum []         _                          = Right []
+checkEnum (def : st) tb@(SymbolTable _ tys f c) = case def of
+    FunDef fn _ params ret _ -> do
+        this <- (`traverse` params) $ checkPD fn
+        re <- if checkTypeApp ret then Right () else Left $ errRet ++ nameIdx fn
+        rest <- checkEnum st tb
+        pure $ re : this <> rest
+    EnumDef _ _ cases -> do
+        this <- concat <$> traverse checkCase cases
+        rest <- checkEnum st tb
+        pure $ this <> rest
+    _ -> checkEnum st tb
   where
     checkCase :: CaseDef Idx -> Either String [()]
-    checkCase ~(CaseDef cn params _) =
-        (`traverse` params) $ \(ParamDef _ t) -> if checkTypeApp t
-            then Right ()
-            else
-                Left
-                $  "Invalid type application in definition of "
-                ++ nameIdx cn
+    checkCase ~(CaseDef cn params _) = (`traverse` params) $ checkPD cn
     checkTypeApp :: AType Idx -> Bool
     checkTypeApp (EnumType t ats) =
         let Just (TypeSig (EnumType _ ats')) = Map.lookup t tys
         in  length ats == length ats' && all checkTypeApp ats
     checkTypeApp _ = True
-checkEnum (_ : st) tb = checkEnum st tb
+
+    checkPD cn (ParamDef _ t) =
+        if checkTypeApp t then Right () else Left $ errMsg ++ nameIdx cn
+    errMsg = "Invalid type application in definition of "
+    errRet = "Invalid type application in return type of "
+
 
 -- | the return type of the main function will be ignored
 checkMain :: Program Idx -> Program Idx
@@ -221,9 +231,9 @@ subst cs i t =
     ss tpe             _ _      = tpe
 
 -- | solve type constraint
-solveConstraint :: [Constraint] -> Either String [Constraint]
-solveConstraint []                        = Right []
-solveConstraint (c@(Constraint f e) : cs) = (c :) <$> case (f, e) of
+solveConstraint :: [Constraint] -> Either String ()
+solveConstraint []                        = Right ()
+solveConstraint (c@(Constraint f e) : cs) = case (f, e) of
     (Counted i  , AnyType    )          -> solveConstraint $ subst cs i AnyType
     (AnyType    , Counted i  )          -> solveConstraint $ subst cs i AnyType
     (_          , AnyType    )          -> solveConstraint cs
@@ -256,4 +266,7 @@ solveConstraint (c@(Constraint f e) : cs) = (c :) <$> case (f, e) of
 
     _ -> Left $ "Cannot unify type " ++ show f ++ " and " ++ show e
 
-f pg st = map solveConstraint $ runConstraint pg st
+-- | check type and returned the solved constraint
+checkType :: Program Idx -> SymbolTable -> Either String ()
+checkType pg st = checkEnum pg st
+    *> traverse_ solveConstraint (runConstraint (checkMain pg) st)

@@ -72,19 +72,20 @@ Maybe_0.Nothing_4()
 }
 [<main>]
 def hello_16[](): Unit = {
-val a_0: Maybe_0[Int] = Maybe_0.Just_5(3);
-val b_1: Int = (2) + (3);
-val l_2: List_2[Boolean] = List_2.Cons_10(True, List_2.Cons_10(False, List_2.Nil_9()));
-val cp_3: Pair_3[Color_1[], Maybe_0[Color_1[]]] = Pair_3.Pair_11(Color_1.Red_6(), Maybe_0.Just_5(Color_1.Blue_8()));
-println_-2(safeDiv_15(getOr_12(a_0, b_1), 0));
-val b_4: Boolean = ((True) || ((False) && (!((4) <= (3))))) || (!(!(((1) + (1)) < (3))));
-println_-2((!((-(1)) == ((5) * (-(6))))) && (b_4));
-println_-2(listToPair_13(l_2))
+val gb_0: Boolean = getOr_12(Maybe_0.Just_5(True), True);
+val gi_1: Int = getOr_12(Maybe_0.Just_5(1), 3);
+val a_2: Maybe_0[Int] = Maybe_0.Just_5(3);
+val b_3: Int = (2) + (3);
+val l_4: List_2[Boolean] = List_2.Cons_10(True, List_2.Cons_10(False, List_2.Nil_9()));
+val cp_5: Pair_3[Color_1[], Maybe_0[Color_1[]]] = Pair_3.Pair_11(Color_1.Red_6(), Maybe_0.Just_5(Color_1.Blue_8()));
+println_-2(safeDiv_15(getOr_12(a_2, b_3), 0));
+val b_6: Boolean = ((True) || ((False) && (!((4) <= (3))))) || (!(!(((1) + (1)) < (3))));
+println_-2((!((-(1)) == ((5) * (-(6))))) && (b_6));
+println_-2(listToPair_13(l_4))
 }
 
 <Check types>
 
-Right [(),(),(),(),()]
 
 <Constraints>
 
@@ -115,23 +116,31 @@ Constraint {found = Maybe_0[Counter 2], expected = Counter 1}
 Constraint {found = Maybe_0[Counter 3], expected = Counter 1}
 Constraint {found = Counter 1, expected = Maybe_0[Int]}
 --------
-Constraint {found = Int, expected = Counter 0}
-Constraint {found = Maybe_0[Counter 0], expected = Maybe_0[Int]}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
 Constraint {found = Boolean, expected = Counter 1}
-Constraint {found = Boolean, expected = Counter 2}
-Constraint {found = List_2[Counter 3], expected = List_2[Counter 2]}
-Constraint {found = List_2[Counter 2], expected = List_2[Counter 1]}
-Constraint {found = List_2[Counter 1], expected = List_2[Boolean]}
-Constraint {found = Color_1[], expected = Counter 4}
-Constraint {found = Color_1[], expected = Counter 6}
-Constraint {found = Maybe_0[Counter 6], expected = Counter 5}
-Constraint {found = Pair_3[Counter 4, Counter 5], expected = Pair_3[Color_1[], Maybe_0[Color_1[]]]}
-Constraint {found = Maybe_0[Int], expected = Maybe_0[Counter 7]}
-Constraint {found = Int, expected = Counter 7}
-Constraint {found = Counter 7, expected = Int}
+Constraint {found = Maybe_0[Counter 1], expected = Maybe_0[Counter 0]}
+Constraint {found = Boolean, expected = Counter 0}
+Constraint {found = Counter 0, expected = Boolean}
+Constraint {found = Int, expected = Counter 3}
+Constraint {found = Maybe_0[Counter 3], expected = Maybe_0[Counter 2]}
+Constraint {found = Int, expected = Counter 2}
+Constraint {found = Counter 2, expected = Int}
+Constraint {found = Int, expected = Counter 4}
+Constraint {found = Maybe_0[Counter 4], expected = Maybe_0[Int]}
+Constraint {found = Int, expected = Int}
+Constraint {found = Int, expected = Int}
+Constraint {found = Int, expected = Int}
+Constraint {found = Boolean, expected = Counter 5}
+Constraint {found = Boolean, expected = Counter 6}
+Constraint {found = List_2[Counter 7], expected = List_2[Counter 6]}
+Constraint {found = List_2[Counter 6], expected = List_2[Counter 5]}
+Constraint {found = List_2[Counter 5], expected = List_2[Boolean]}
+Constraint {found = Color_1[], expected = Counter 8}
+Constraint {found = Color_1[], expected = Counter 10}
+Constraint {found = Maybe_0[Counter 10], expected = Counter 9}
+Constraint {found = Pair_3[Counter 8, Counter 9], expected = Pair_3[Color_1[], Maybe_0[Color_1[]]]}
+Constraint {found = Maybe_0[Int], expected = Maybe_0[Counter 11]}
+Constraint {found = Int, expected = Counter 11}
+Constraint {found = Counter 11, expected = Int}
 Constraint {found = Int, expected = Int}
 Constraint {found = Maybe_0[Int], expected = Any}
 Constraint {found = Unit, expected = Any}
@@ -152,116 +161,21 @@ Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 8}
+Constraint {found = Int, expected = Counter 12}
 Constraint {found = Int, expected = Int}
 Constraint {found = Int, expected = Int}
 Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 8}
+Constraint {found = Int, expected = Counter 12}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Any}
 Constraint {found = Unit, expected = Any}
-Constraint {found = List_2[Boolean], expected = List_2[Counter 9]}
-Constraint {found = Maybe_0[Pair_3[Counter 9, List_2[Counter 9]]], expected = Any}
+Constraint {found = List_2[Boolean], expected = List_2[Counter 13]}
+Constraint {found = Maybe_0[Pair_3[Counter 13, List_2[Counter 13]]], expected = Any}
 Constraint {found = Unit, expected = Unit}
 --------
 
 <Solved>
 
-Constraint {found = Maybe_0[~A_0], expected = Counter 0}
-Constraint {found = ~A_0, expected = ~A_0}
-Constraint {found = Counter 2, expected = ~A_0}
---------
-Constraint {found = List_2[~A_0], expected = Counter 0}
-Constraint {found = Maybe_0[Counter 2], expected = Maybe_0[Pair_3[~A_0, List_2[~A_0]]]}
-Constraint {found = Counter 2, expected = Pair_3[~A_0, List_2[~A_0]]}
-Constraint {found = Counter 3, expected = Counter 5}
-Constraint {found = List_2[Counter 3], expected = Counter 6}
-Constraint {found = Pair_3[Counter 3, List_2[Counter 3]], expected = Counter 4}
-Constraint {found = Maybe_0[Pair_3[Counter 3, List_2[Counter 3]]], expected = Maybe_0[Pair_3[~A_0, List_2[~A_0]]]}
-Constraint {found = Pair_3[Counter 3, List_2[Counter 3]], expected = Pair_3[~A_0, List_2[~A_0]]}
-Constraint {found = Counter 3, expected = ~A_0}
-Constraint {found = List_2[~A_0], expected = List_2[~A_0]}
-Constraint {found = ~A_0, expected = ~A_0}
---------
-Constraint {found = Pair_3[~A_0, ~B_1], expected = Counter 0}
-Constraint {found = Counter 2, expected = Counter 3}
-Constraint {found = Counter 1, expected = Counter 4}
-Constraint {found = Pair_3[Counter 2, Counter 1], expected = Pair_3[~B_1, ~A_0]}
-Constraint {found = Counter 2, expected = ~B_1}
-Constraint {found = Counter 1, expected = ~A_0}
---------
-Constraint {found = Int, expected = Counter 0}
-Constraint {found = Int, expected = Int}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 2}
-Constraint {found = Maybe_0[Int], expected = Counter 1}
-Constraint {found = Maybe_0[Counter 3], expected = Maybe_0[Int]}
-Constraint {found = Counter 3, expected = Int}
-Constraint {found = Maybe_0[Int], expected = Maybe_0[Int]}
-Constraint {found = Int, expected = Int}
---------
-Constraint {found = Int, expected = Counter 0}
-Constraint {found = Maybe_0[Int], expected = Maybe_0[Int]}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Boolean, expected = Counter 1}
-Constraint {found = Boolean, expected = Counter 2}
-Constraint {found = List_2[Counter 3], expected = List_2[Boolean]}
-Constraint {found = Counter 3, expected = Boolean}
-Constraint {found = List_2[Boolean], expected = List_2[Boolean]}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = List_2[Boolean], expected = List_2[Boolean]}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Color_1[], expected = Counter 4}
-Constraint {found = Color_1[], expected = Counter 6}
-Constraint {found = Maybe_0[Color_1[]], expected = Counter 5}
-Constraint {found = Pair_3[Color_1[], Maybe_0[Color_1[]]], expected = Pair_3[Color_1[], Maybe_0[Color_1[]]]}
-Constraint {found = Color_1[], expected = Color_1[]}
-Constraint {found = Maybe_0[Color_1[]], expected = Maybe_0[Color_1[]]}
-Constraint {found = Color_1[], expected = Color_1[]}
-Constraint {found = Maybe_0[Int], expected = Maybe_0[Counter 7]}
-Constraint {found = Int, expected = Counter 7}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Maybe_0[Int], expected = Any}
-Constraint {found = Unit, expected = Any}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 8}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Any}
-Constraint {found = Unit, expected = Any}
-Constraint {found = List_2[Boolean], expected = List_2[Counter 9]}
-Constraint {found = Boolean, expected = Counter 9}
-Constraint {found = Maybe_0[Pair_3[Boolean, List_2[Boolean]]], expected = Any}
-Constraint {found = Unit, expected = Unit}
---------
+Right ()
