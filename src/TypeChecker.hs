@@ -203,12 +203,13 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
                 )
 
 -- | eval state and get the constarint
-runConstraint :: [Definition Idx] -> SymbolTable -> [[Constraint]]
+runConstraint :: Program Idx -> SymbolTable -> [[Constraint]]
 runConstraint dfs st = helper (\d -> evalState (genConstraint d st) 0) dfs
   where
-    helper _ []                = []
-    helper f (x@FunDef{} : xs) = f x : helper f xs
-    helper f (_          : xs) = helper f xs
+    helper _ []                  = []
+    helper f (x@FunDef{}   : xs) = f x : helper f xs
+    helper f (EntryPoint x : xs) = f x : helper f xs
+    helper f (_            : xs) = helper f xs
 
 -- | substitue tmp type var i to type t
 subst :: [Constraint] -> Int -> AType Idx -> [Constraint]
@@ -220,13 +221,39 @@ subst cs i t =
     ss tpe             _ _      = tpe
 
 -- | solve type constraint
-solveConstraint :: [Constraint] -> Either String ()
-solveConstraint []                    = Right ()
-solveConstraint (Constraint f e : cs) = case (f, e) of
-    (IntType    , IntType    )      -> solveConstraint cs
-    (BooleanType, BooleanType)      -> solveConstraint cs
-    (StringType , StringType )      -> solveConstraint cs
-    (UnitType   , UnitType   )      -> solveConstraint cs
+solveConstraint :: [Constraint] -> Either String [Constraint]
+solveConstraint []                        = Right []
+solveConstraint (c@(Constraint f e) : cs) = (c :) <$> case (f, e) of
+    (Counted i  , AnyType    )          -> solveConstraint $ subst cs i AnyType
+    (AnyType    , Counted i  )          -> solveConstraint $ subst cs i AnyType
+    (_          , AnyType    )          -> solveConstraint cs
+    (AnyType    , _          )          -> solveConstraint cs
+
+    (IntType    , IntType    )          -> solveConstraint cs
+    (BooleanType, BooleanType)          -> solveConstraint cs
+    (StringType , StringType )          -> solveConstraint cs
+    (UnitType   , UnitType   )          -> solveConstraint cs
+    (TypeParam x, TypeParam y) | x == y -> solveConstraint cs
+    (EnumType x tx, EnumType y ty) | x == y ->
+        solveConstraint (zipWith Constraint tx ty ++ cs)
+
+    (IntType      , Counted i    )  -> solveConstraint $ subst cs i IntType
+    (BooleanType  , Counted i    )  -> solveConstraint $ subst cs i BooleanType
+    (StringType   , Counted i    )  -> solveConstraint $ subst cs i StringType
+    (UnitType     , Counted i    )  -> solveConstraint $ subst cs i UnitType
+    (v@TypeParam{}, Counted i    )  -> solveConstraint $ subst cs i v
+    (e@EnumType{} , Counted i    )  -> solveConstraint $ subst cs i e
+
+    (Counted i    , IntType      )  -> solveConstraint $ subst cs i IntType
+    (Counted i    , BooleanType  )  -> solveConstraint $ subst cs i BooleanType
+    (Counted i    , StringType   )  -> solveConstraint $ subst cs i StringType
+    (Counted i    , UnitType     )  -> solveConstraint $ subst cs i UnitType
+    (Counted i    , v@TypeParam{})  -> solveConstraint $ subst cs i v
+    (Counted i    , e@EnumType{} )  -> solveConstraint $ subst cs i e
+
     (Counted i, Counted j) | i == j -> solveConstraint cs
-    -- TODO
-    _                               -> undefined
+    (Counted i, Counted j)          -> solveConstraint $ subst cs j (Counted i)
+
+    _ -> Left $ "Cannot unify type " ++ show f ++ " and " ++ show e
+
+f pg st = map solveConstraint $ runConstraint pg st
