@@ -8,16 +8,18 @@ import qualified Text.Parsec.Token             as P
 import           Text.ParserCombinators.Parsec  ( Parser )
 import           Types
 
+-- | parse the program
+parseProgram :: String -> Either ParseError (Program String)
+parseProgram = regularParse program
+
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p "amy3"
 
 -- * definitions
 
--- | parse the whole program
---   main function must be defined at the end, and only one
+-- | parser for the whole program
 program :: Parser [Definition String]
-program =
-    (++) <$> many (enumDef <|> funDef) <*> option [] (pure <$> entryPoint)
+program = many (enumDef <|> funDef <|> entryPoint)
 
 -- | main function
 entryPoint :: Parser (Definition String)
@@ -157,7 +159,7 @@ seq' = bind <|> se
   where
     bind = do
         (p, b) <- letIn
-        res <- seqRest
+        res    <- seqRest
         case res of
             Nothing -> parserFail "Error: let-binding without following expr"
             Just e  -> pure $ Let p b e
@@ -187,10 +189,24 @@ expr' = do
 -- | binary operators
 term0 = term1 `chainl1` (reservedOp "||" $> Or)
 term1 = term2 `chainl1` (reservedOp "&&" $> And)
-term2 = term3 `chainl1` (reservedOp "==" $> Equals)
+term2 =
+    term3
+        `chainl1` (   reservedOp "=="
+                  $>  Equals
+                  <|> reservedOp "!="
+                  $>  (\x y -> Not (Equals x y))
+                  )
 term3 =
     term4
-        `chainl1` (reservedOp "<" $> LessThan <|> reservedOp "<=" $> LessEqual)
+        `chainl1` (   reservedOp "<"
+                  $>  LessThan
+                  <|> reservedOp "<="
+                  $>  LessEqual
+                  <|> reservedOp ">"
+                  $>  (\x y -> Not (LessEqual x y))
+                  <|> reservedOp ">="
+                  $>  (\x y -> Not (LessThan x y))
+                  )
 term4 =
     term5
         `chainl1` (   reservedOp "+"
@@ -200,7 +216,7 @@ term4 =
                   <|> reservedOp "++"
                   $>  Concat
                   )
-term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div)
+term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div <|> reserved "%" $> Mod)
 term6 = uOps term7 <|> term7
 term7 =
     (try (reserved "()") $> LitUnit)

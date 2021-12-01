@@ -3,6 +3,12 @@ enum Maybe[A] {
   case Just(n: A)
 }
 
+enum Color {
+  case Red()
+  case Green()
+  case Blue()
+}
+
 enum List[A] {
   case Nil()
   case Cons(head: A, tail: List[A])
@@ -33,20 +39,42 @@ def swap[A, B](p: Pair[A, B]): Pair[B, A] = {
 }
 
 def safeDiv(x: Int, y: Int): Maybe[Int] = {
-  if (!(y == 0)) {
+  if (y != 0) {
     Maybe.Just(x / y)
   } else {
     Maybe.Nothing()
   }
 }
 
+def boolToString(b: Boolean): String = {
+  if (b) {
+    "true"
+  } else {
+    "false"
+  }
+}
+
+def intToString(i: Int): String = {
+    if (i < 0) {
+      "-" ++ intToString(-i)
+    } else {
+      val rem: Int = i % 10;
+      val div: Int = i / 10;
+      if (div == 0) { digitToString(rem) }
+      else { intToString(div) ++ digitToString(rem) }
+    }
+  }
+
 @main
 def hello(): Unit = {
+  val gb: Boolean = getOr(Maybe.Just(true), true);
+  val gi: Int = getOr(Maybe.Just(1), 3);
   val a: Maybe[Int] = Maybe.Just(3);
   val b: Int = 2+3;
   val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));
-  println(safeDiv(getOr(a, b), 0));
-  val b: Boolean = true || false;
-  println(-1 == (5 * 6) && !b);
-  println(listToPair(l))
+  val cp: Pair[Color, Maybe[Color]] = Pair.Pair(Color.Red(), Maybe.Just(Color.Blue()));
+  println(intToString(getOr(safeDiv(getOr(a, b), 0), -1)));
+  val b: Boolean = true || false && (4 > 3) || !((1+1) >= 3);
+  println(boolToString(-1 != (5 * -6) && b))
+  // println(listToPair(l))
 }

@@ -4,8 +4,8 @@ import qualified Data.Map                      as Map
 import           Types
 
 -- | function/constructor/type signature
-data Signature a = FunSig [AType a] [AType a] (AType a)
-                 | ConstrSig [AType a] [AType a] (AType a)
+data Signature a = FunSig [AType a] [AType a] (AType a)         -- type variable, parameter type, return type
+                 | ConstrSig [AType a] [AType a] (AType a)      -- type variable, parameter type, case type
                  | TypeSig (AType a)
                  deriving (Show)
 
@@ -46,17 +46,17 @@ lookupConstr tn cn table = do
 -- | table used in state monad
 data TableST = TableST
     { table      :: SymbolTable             -- ^ symbol table
-    , locals     :: Map.Map String Idx      -- ^ local env
     , localIndex :: Int                     -- ^ local index counter
     , index      :: Int                     -- ^ global index counter
     }
     deriving Show
 
+type Local = Map.Map String Idx      -- ^ local env
+
 -- | empty table for state
 emptyTable :: TableST
 emptyTable = TableST
     (SymbolTable (Map.fromList pds) Map.empty (Map.fromList pfs) Map.empty)
-    Map.empty
     0
     0
   where
@@ -67,9 +67,9 @@ emptyTable = TableST
 
 -- | primitive functions
 data Primitive a = Primitive
-    { pName :: String               -- ^ function name
-    , pArgs :: [AType a]       -- ^ arg types
-    , pRet  :: AType a         -- ^ return type
+    { pName :: String           -- ^ function name
+    , pArgs :: [AType a]        -- ^ arg types
+    , pRet  :: AType a          -- ^ return type
     }
     deriving Show
 
@@ -77,11 +77,24 @@ data Primitive a = Primitive
 primitives :: Map.Map String (Signature a)
 primitives = Map.fromList $ map
     (\x -> (pName x, primToSig x))
-    [ Primitive "print"    [StringType] UnitType
-    , Primitive "println"  [StringType] UnitType
-    , Primitive "readLine" []           StringType
+    [ Primitive "print"         [StringType] UnitType
+    , Primitive "println"       [StringType] UnitType
+    , Primitive "readLine"      []           StringType
+    , Primitive "digitToString" [IntType]    StringType
     ]
 
 -- | convert primitives to signatures
 primToSig :: Primitive a -> Signature a
 primToSig (Primitive n a r) = FunSig [] a r
+
+isPrimitive :: String -> Bool
+isPrimitive p = Map.member p primitives
+
+type FuncTable = Map.Map Idx (Definition Idx)
+
+buildFuncTable :: Program Idx -> FuncTable
+buildFuncTable []         = Map.empty
+buildFuncTable (def : st) = case def of
+    FunDef idx ats pds at ex -> Map.insert idx def $ buildFuncTable st
+    EntryPoint de            -> buildFuncTable (de : st)
+    _                        -> buildFuncTable st

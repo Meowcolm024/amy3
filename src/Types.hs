@@ -45,14 +45,14 @@ data CaseDef a = CaseDef
     , proTypes :: [ParamDef a]      -- ^ argument types
     , parType  :: AType a           -- ^ true type 
     }
-    deriving Functor
+    deriving (Functor, Eq)
 
 -- | paramter definition
 data ParamDef a = ParamDef
     { paramName :: a
     , paramType :: AType a
     }
-    deriving Functor
+    deriving (Functor, Eq)
 
 data Expr a
     = Variable a
@@ -64,6 +64,7 @@ data Expr a
     | Minus (Expr a) (Expr a)
     | Mult (Expr a) (Expr a)
     | Div (Expr a) (Expr a)
+    | Mod (Expr a) (Expr a)
     | LessThan (Expr a) (Expr a)
     | LessEqual (Expr a) (Expr a)
     | And (Expr a) (Expr a)
@@ -85,10 +86,10 @@ data Expr a
         Match (Expr a) [MatchCase a]
     | -- | error expr
         Bottom (Expr a)
-    deriving (Functor)
+    deriving (Functor, Eq)
 
 data MatchCase a = MatchCase (Pattern a) (Expr a)
-    deriving Functor
+    deriving (Functor, Eq)
 
 -- | patterns
 data Pattern a
@@ -96,7 +97,7 @@ data Pattern a
     | IdPattern a
     | LiteralPattern (Expr a)
     | EnumPattern a (AType a) [Pattern a]   -- ^ constr name, type name, pattern
-    deriving (Functor)
+    deriving (Functor, Eq)
 
 -- * "not" pretty printing
 
@@ -208,7 +209,7 @@ data Idx = Idx
     }
 
 instance Show Idx where
-    show (Idx n i) = n ++ "<" ++ show i ++ ">"
+    show (Idx n i) = n ++ "_" ++ show i
 
 instance Eq Idx where
     (Idx _ i) == (Idx _ j) = i == j
