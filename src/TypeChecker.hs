@@ -208,7 +208,7 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
                              params
             (cs, es) <- unzip <$> zipWithM handlePat pats ps
             pure
-                ( concat cs {- ++ [Constraint at expected] -}
+                ( concat cs ++ [Constraint at expected]
                 , foldr Map.union Map.empty es
                 )
 

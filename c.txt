@@ -90,16 +90,21 @@ println_-2(listToPair_13(l_4))
 <Constraints>
 
 Constraint {found = Maybe_0[~A_0], expected = Counter 0}
+Constraint {found = Maybe_0[~A_0], expected = Counter 0}
 Constraint {found = ~A_0, expected = ~A_0}
+Constraint {found = Maybe_0[~A_0], expected = Counter 0}
 Constraint {found = Counter 2, expected = ~A_0}
 --------
 Constraint {found = List_2[~A_0], expected = Counter 0}
+Constraint {found = List_2[~A_0], expected = Counter 0}
 Constraint {found = Maybe_0[Counter 2], expected = Maybe_0[Pair_3[~A_0, List_2[~A_0]]]}
+Constraint {found = List_2[~A_0], expected = Counter 0}
 Constraint {found = Counter 3, expected = Counter 5}
 Constraint {found = List_2[Counter 3], expected = Counter 6}
 Constraint {found = Pair_3[Counter 5, Counter 6], expected = Counter 4}
 Constraint {found = Maybe_0[Counter 4], expected = Maybe_0[Pair_3[~A_0, List_2[~A_0]]]}
 --------
+Constraint {found = Pair_3[~A_0, ~B_1], expected = Counter 0}
 Constraint {found = Pair_3[~A_0, ~B_1], expected = Counter 0}
 Constraint {found = Counter 2, expected = Counter 3}
 Constraint {found = Counter 1, expected = Counter 4}
