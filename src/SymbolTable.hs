@@ -86,3 +86,15 @@ primitives = Map.fromList $ map
 -- | convert primitives to signatures
 primToSig :: Primitive a -> Signature a
 primToSig (Primitive n a r) = FunSig [] a r
+
+isPrimitive :: String -> Bool
+isPrimitive p = Map.member p primitives
+
+type FuncTable = Map.Map Idx (Definition Idx)
+
+buildFuncTable :: Program Idx -> FuncTable
+buildFuncTable []         = Map.empty
+buildFuncTable (def : st) = case def of
+    FunDef idx ats pds at ex -> Map.insert idx def $ buildFuncTable st
+    EntryPoint de            -> buildFuncTable (de : st)
+    _                        -> buildFuncTable st

@@ -1,8 +1,10 @@
 {-# LANGUAGE LambdaCase #-}
 import           Control.Monad
 import qualified Data.Map                      as Map
+import           Interpreter
 import           NameAnalysis
 import           Parser
+import           SymbolTable                    ( buildFuncTable )
 import           System.Exit                    ( exitFailure )
 import           System.IO
 import           TypeChecker
@@ -25,6 +27,11 @@ main = do
                 putStrLn "\n<Solved>\n"
                 print $ checkType pg st
 
+                let ft = buildFuncTable pg
+                execMain pg st ft
+
             Left msg -> hPutStrLn stderr msg *> exitFailure
+
+
 
     hClose handle
