@@ -23,7 +23,7 @@ Pair_3:
   getOr_12 := FunSig [~A_0] [Maybe_0[~A_0],~A_0] ~A_0
   listToPair_13 := FunSig [~A_0] [List_2[~A_0]] Maybe_0[Pair_3[~A_0, List_2[~A_0]]]
   swap_14 := FunSig [~A_0,~B_1] [Pair_3[~A_0, ~B_1]] Pair_3[~B_1, ~A_0]
-  safeDiv_15 := FunSig [] [Int,Int] Maybe_0[Boolean]
+  safeDiv_15 := FunSig [] [Int,Int] Maybe_0[Int]
   hello_16 := FunSig [] [] Unit
 
 
@@ -62,7 +62,7 @@ def swap_14[~A_0, ~B_1](p_2: Pair_3[~A_0, ~B_1]): Pair_3[~B_1, ~A_0] = {
 case Pair_3.Pair_11(x_3, y_4) => Pair_3.Pair_11(y_4, x_3)
 }
 }
-def safeDiv_15[](x_0: Int, y_1: Int): Maybe_0[Boolean] = {
+def safeDiv_15[](x_0: Int, y_1: Int): Maybe_0[Int] = {
 if (!((y_1) == (0))) {
 Maybe_0.Just_5((x_0) / (y_1))
 } else {
@@ -112,5 +112,5 @@ Constraint {found = Int, expected = Int}
 Constraint {found = Int, expected = Counter 2}
 Constraint {found = Maybe_0[Counter 2], expected = Counter 1}
 Constraint {found = Maybe_0[Counter 3], expected = Counter 1}
-Constraint {found = Counter 1, expected = Maybe_0[Boolean]}
+Constraint {found = Counter 1, expected = Maybe_0[Int]}
 --------

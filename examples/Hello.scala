@@ -38,7 +38,7 @@ def swap[A, B](p: Pair[A, B]): Pair[B, A] = {
   }
 }
 
-def safeDiv(x: Int, y: Int): Maybe[Boolean] = {
+def safeDiv(x: Int, y: Int): Maybe[Int] = {
   if (!(y == 0)) {
     Maybe.Just(x / y)
   } else {

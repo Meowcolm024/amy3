@@ -2,10 +2,6 @@
 module TypeChecker where
 
 import           Control.Monad                  ( zipWithM )
-import           Control.Monad.Except           ( MonadTrans(lift)
-                                                , throwError
-                                                )
-import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.State
 import           Data.Either                    ( isRight )
 import qualified Data.Map                      as Map
@@ -25,7 +21,7 @@ data Constraint = Constraint
 -- | env with counter in state monad
 type Env = Map.Map Idx (AType Idx)
 
-type CheckState a = ExceptT String (State Int) a
+type CheckState a = State Int a
 
 -- | check type application in enum definitions
 --   others will be checked during generating constraints
@@ -109,8 +105,8 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             rhs <- genCons ex' BooleanType env
             pure $ lhs ++ rhs ++ [Constraint BooleanType expected]
         Equals ex ex' -> do
-            i <- lift get
-            lift . put $ i + 1
+            i <- get
+            put $ i + 1
             lhs <- genCons ex (Counted i) env
             rhs <- genCons ex' (Counted i) env
             pure $ lhs ++ rhs ++ [Constraint BooleanType expected]
@@ -130,8 +126,8 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             pure $ e ++ [Constraint IntType expected]
         Call idx exs -> do
             let Just (FunSig targs params ret) = Map.lookup idx (functions st)
-            i <- lift get
-            lift . put $ i + length targs
+            i <- get
+            put $ i + length targs
             let (rt : ps) = typeApp
                     (zip (map (\(TypeParam x) -> x) targs) [i ..])
                     (ret : params)
@@ -141,8 +137,8 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             let EnumType p _ = at
             let Just (ConstrSig targs params ret) =
                     Map.lookup p (constructors st) >>= Map.lookup idx
-            i <- lift get
-            lift . put $ i + length targs
+            i <- get
+            put $ i + length targs
             let (rt : ps) = typeApp
                     (zip (map (\(TypeParam x) -> x) targs) [i ..])
                     (ret : params)
@@ -154,14 +150,14 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             pure $ b ++ e
         IfElse ex ex' ex3 -> do
             pr <- genCons ex BooleanType env
-            i  <- lift get
-            lift . put $ i + 1
+            i  <- get
+            put $ i + 1
             el <- genCons ex' (Counted i) env
             at <- genCons ex3 (Counted i) env
             pure $ pr ++ el ++ at ++ [Constraint (Counted i) expected]
         Match ex mcs -> do
-            i <- lift get
-            lift . put $ i + 1
+            i <- get
+            put $ i + 1
             -- constraint for expr to be matched
             e  <- genCons ex (Counted i) env
             -- same type for patterns and return type is "expected"
@@ -181,6 +177,7 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
         retc            <- genCons expr expected (Map.union moreEnv env)
         pure $ patc ++ retc
     -- | handle patterns
+    handlePat :: Pattern Idx -> AType Idx -> CheckState ([Constraint], Env)
     handlePat pat expected = case pat of
         WildcardPattern   -> pure ([], Map.empty)
         LiteralPattern ex -> pure $ (, Map.empty) $ case ex of
@@ -194,8 +191,8 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             let EnumType p _ = at
             let Just (ConstrSig targs params ret) =
                     Map.lookup p (constructors st) >>= Map.lookup idx
-            i <- lift get
-            lift . put $ i + length targs
+            i <- get
+            put $ i + length targs
             let
                 ps = typeApp (zip (map (\(TypeParam x) -> x) targs) [i ..])
                              params
@@ -206,11 +203,8 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
                 )
 
 -- | eval state and get the constarint
-runConstraint :: CheckState [Constraint] -> Either String [Constraint]
-runConstraint cs = evalState (runExceptT cs) 0
-
-testCons :: [Definition Idx] -> SymbolTable -> [[Constraint]]
-testCons dfs st = concat . sequence $  helper (\d -> runConstraint (genConstraint d st)) dfs
+runConstraint :: [Definition Idx] -> SymbolTable -> [[Constraint]]
+runConstraint dfs st = helper (\d -> evalState (genConstraint d st) 0) dfs
   where
     helper _ []                = []
     helper f (x@FunDef{} : xs) = f x : helper f xs
@@ -228,4 +222,11 @@ subst cs i t =
 -- | solve type constraint
 solveConstraint :: [Constraint] -> Either String ()
 solveConstraint []                    = Right ()
-solveConstraint (Constraint f e : cs) = undefined
+solveConstraint (Constraint f e : cs) = case (f, e) of
+    (IntType    , IntType    )      -> solveConstraint cs
+    (BooleanType, BooleanType)      -> solveConstraint cs
+    (StringType , StringType )      -> solveConstraint cs
+    (UnitType   , UnitType   )      -> solveConstraint cs
+    (Counted i, Counted j) | i == j -> solveConstraint cs
+    -- TODO
+    _                               -> undefined
