@@ -140,8 +140,9 @@ interpret ex ev st ft = void $ eval ex ev
                 _ -> Nothing
 
 evalPrimitive :: String -> [Expr Idx] -> IO (Expr Idx)
-evalPrimitive "print" [LitString s] = putStr s *> hFlush stdout $> LitUnit
+evalPrimitive "print"       [LitString s] = putStr s *> hFlush stdout $> LitUnit
 evalPrimitive "println" [LitString s] = putStrLn s *> hFlush stdout $> LitUnit
-evalPrimitive "readLine" [] = LitString <$> getLine
-evalPrimitive "digitToString" [LitInt i] = pure $ LitString (show i)
-evalPrimitive _ _ = evalError ""
+evalPrimitive "readLine"    []            = LitString <$> getLine
+evalPrimitive "intToString" [LitInt    i] = pure $ LitString (show i)
+evalPrimitive "parseInt"    [LitString s] = pure $ LitInt (read s)
+evalPrimitive _             _             = evalError ""

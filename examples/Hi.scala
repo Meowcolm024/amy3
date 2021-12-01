@@ -2,5 +2,6 @@
 def hi(): Unit = {
     print("input something: ");
     val x: String = readLine();
-    println(x)
+    val y: Int = 2 * parseInt(x);
+    println(intToString(y*y))
 }

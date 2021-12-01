@@ -54,17 +54,6 @@ def boolToString(b: Boolean): String = {
   }
 }
 
-def intToString(i: Int): String = {
-    if (i < 0) {
-      "-" ++ intToString(-i)
-    } else {
-      val rem: Int = i % 10;
-      val div: Int = i / 10;
-      if (div == 0) { digitToString(rem) }
-      else { intToString(div) ++ digitToString(rem) }
-    }
-  }
-
 @main
 def hello(): Unit = {
   val gb: Boolean = getOr(Maybe.Just(true), true);
