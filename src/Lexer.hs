@@ -48,6 +48,7 @@ langDef = P.LanguageDef
                           , "<="    -- le
                           , ">"     -- gt
                           , ">="    -- ge
+                          , "%"     -- mod
                           ]
     , P.caseSensitive   = True
     }

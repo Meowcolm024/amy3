@@ -54,6 +54,12 @@ interpret ex ev st ft = void $ eval ex ev
             case rhs of
                 0 -> evalError "Divided by Zero"
                 _ -> pure $ LitInt (lhs `div` rhs)
+        Mod ex' ex3 -> do
+            LitInt lhs <- eval ex' env
+            LitInt rhs <- eval ex3 env
+            case rhs of
+                0 -> evalError "Divided by Zero"
+                _ -> pure $ LitInt (lhs `mod` rhs)
         LessThan ex' ex3 -> do
             LitInt lhs <- eval ex' env
             LitInt rhs <- eval ex3 env
@@ -134,7 +140,8 @@ interpret ex ev st ft = void $ eval ex ev
                 _ -> Nothing
 
 evalPrimitive :: String -> [Expr Idx] -> IO (Expr Idx)
-evalPrimitive "print"    [s] = putStr (show s) *> hFlush stdout $> LitUnit
-evalPrimitive "println"  [s] = print s *> hFlush stdout $> LitUnit
-evalPrimitive "readLine" []  = LitString <$> getLine
-evalPrimitive _          _   = evalError ""
+evalPrimitive "print" [LitString s] = putStr s *> hFlush stdout $> LitUnit
+evalPrimitive "println" [LitString s] = putStrLn s *> hFlush stdout $> LitUnit
+evalPrimitive "readLine" [] = LitString <$> getLine
+evalPrimitive "digitToString" [LitInt i] = pure $ LitString (show i)
+evalPrimitive _ _ = evalError ""

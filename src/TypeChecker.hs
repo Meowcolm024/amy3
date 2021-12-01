@@ -98,6 +98,10 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             lhs <- genCons ex IntType env
             rhs <- genCons ex' IntType env
             pure $ lhs ++ rhs ++ [Constraint IntType expected]
+        Mod ex ex' -> do
+            lhs <- genCons ex IntType env
+            rhs <- genCons ex' IntType env
+            pure $ lhs ++ rhs ++ [Constraint IntType expected]
         LessThan ex ex' -> do
             lhs <- genCons ex IntType env
             rhs <- genCons ex' IntType env

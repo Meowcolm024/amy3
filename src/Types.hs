@@ -64,6 +64,7 @@ data Expr a
     | Minus (Expr a) (Expr a)
     | Mult (Expr a) (Expr a)
     | Div (Expr a) (Expr a)
+    | Mod (Expr a) (Expr a)
     | LessThan (Expr a) (Expr a)
     | LessEqual (Expr a) (Expr a)
     | And (Expr a) (Expr a)

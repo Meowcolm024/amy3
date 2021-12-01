@@ -27,9 +27,6 @@ main = do
                 putStrLn "\n<Solved>\n"
                 print $ checkType pg st
 
-                let ft = buildFuncTable pg
-                execMain pg st ft
-
             Left msg -> hPutStrLn stderr msg *> exitFailure
 
 

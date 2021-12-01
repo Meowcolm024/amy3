@@ -8,7 +8,7 @@ import           System.IO
 import           TypeChecker                    ( checkType )
 
 main :: IO ()
-main = interpretMode "examples/Hello.scala"
+main = interpretMode "examples/Hi.scala"
 
 interpretMode :: String -> IO ()
 interpretMode filename = do

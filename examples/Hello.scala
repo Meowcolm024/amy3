@@ -46,6 +46,25 @@ def safeDiv(x: Int, y: Int): Maybe[Int] = {
   }
 }
 
+def boolToString(b: Boolean): String = {
+  if (b) {
+    "true"
+  } else {
+    "false"
+  }
+}
+
+def intToString(i: Int): String = {
+    if (i < 0) {
+      "-" ++ intToString(-i)
+    } else {
+      val rem: Int = i % 10;
+      val div: Int = i / 10;
+      if (div == 0) { digitToString(rem) }
+      else { intToString(div) ++ digitToString(rem) }
+    }
+  }
+
 @main
 def hello(): Unit = {
   val gb: Boolean = getOr(Maybe.Just(true), true);
@@ -54,8 +73,8 @@ def hello(): Unit = {
   val b: Int = 2+3;
   val l: List[Boolean] = List.Cons(true, List.Cons(false, List.Nil()));
   val cp: Pair[Color, Maybe[Color]] = Pair.Pair(Color.Red(), Maybe.Just(Color.Blue()));
-  println(safeDiv(getOr(a, b), 0));
+  println(intToString(getOr(safeDiv(getOr(a, b), 0), -1)));
   val b: Boolean = true || false && (4 > 3) || !((1+1) >= 3);
-  println(-1 != (5 * -6) && b);
-  println(listToPair(l))
+  println(boolToString(-1 != (5 * -6) && b))
+  // println(listToPair(l))
 }

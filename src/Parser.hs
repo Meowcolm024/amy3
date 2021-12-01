@@ -216,7 +216,7 @@ term4 =
                   <|> reservedOp "++"
                   $>  Concat
                   )
-term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div)
+term5 = term6 `chainl1` (reservedOp "*" $> Mult <|> reservedOp "/" $> Div <|> reserved "%" $> Mod)
 term6 = uOps term7 <|> term7
 term7 =
     (try (reserved "()") $> LitUnit)

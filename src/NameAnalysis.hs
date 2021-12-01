@@ -222,6 +222,7 @@ tranfromFunc (FunDef name targs params ret body : st) = do
             Minus     ex ex' -> Minus <$> tf ex env <*> tf ex' env
             Mult      ex ex' -> Mult <$> tf ex env <*> tf ex' env
             Div       ex ex' -> Div <$> tf ex env <*> tf ex' env
+            Mod       ex ex' -> Mod <$> tf ex env <*> tf ex' env
             LessThan  ex ex' -> LessThan <$> tf ex env <*> tf ex' env
             LessEqual ex ex' -> LessEqual <$> tf ex env <*> tf ex' env
             And       ex ex' -> And <$> tf ex env <*> tf ex' env
