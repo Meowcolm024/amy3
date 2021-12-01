@@ -4,8 +4,8 @@ import qualified Data.Map                      as Map
 import           Types
 
 -- | function/constructor/type signature
-data Signature a = FunSig [AType a] [AType a] (AType a)
-                 | ConstrSig [AType a] [AType a] (AType a)
+data Signature a = FunSig [AType a] [AType a] (AType a)         -- type variable, parameter type, return type
+                 | ConstrSig [AType a] [AType a] (AType a)      -- type variable, parameter type, case type
                  | TypeSig (AType a)
                  deriving (Show)
 

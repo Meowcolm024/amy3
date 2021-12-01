@@ -2,8 +2,9 @@ import           Control.Monad
 import qualified Data.Map                      as Map
 import           NameAnalysis
 import           Parser
+import           System.Exit                    ( exitFailure )
 import           System.IO
-import TypeChecker
+import           TypeChecker
 
 main :: IO ()
 main = do
@@ -18,6 +19,6 @@ main = do
                 mapM_ print pg
                 putStrLn "\n<Check types>\n"
                 print $ checkEnum pg st
-            Left msg -> fail msg
+            Left msg -> hPutStrLn stderr msg *> exitFailure
 
     hClose handle
