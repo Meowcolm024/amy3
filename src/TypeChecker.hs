@@ -162,9 +162,11 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
         Match ex mcs -> do
             i <- lift get
             lift . put $ i + 1
+            -- constraint for expr to be matched
             e  <- genCons ex (Counted i) env
-            cs <- mapM (handleCase expected (Counted i)) mcs
-            pure $ e ++ concat cs ++ [Constraint (Counted i) expected]
+            -- same type for patterns and return type is "expected"
+            cs <- mapM (handleCase expected (Counted i) env) mcs
+            pure $ e ++ concat cs
         Bottom ex -> genCons ex StringType env
     -- | type application
     typeApp :: [(Idx, Int)] -> [AType Idx] -> [AType Idx]
@@ -174,44 +176,56 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
         tapp (EnumType n params) = EnumType n (map tapp params)
         tapp t                   = t
     -- | handle single case
-    handleCase
-        :: AType Idx -> AType Idx -> MatchCase Idx -> CheckState [Constraint]
-    handleCase expected scrt (MatchCase pat expr) = case handlePat pat scrt of
-        Left  e -> throwError e
-        Right s -> do
-            let (patc, env) = s
-            retc <- genCons expr expected undefined 
-            pure $ patc ++ retc
+    handleCase expected scrt env (MatchCase pat expr) = do
+        (patc, moreEnv) <- handlePat pat scrt
+        retc            <- genCons expr expected (Map.union moreEnv env)
+        pure $ patc ++ retc
     -- | handle patterns
-    handlePat
-        :: Pattern Idx
-        -> AType Idx
-        -> Either String ([Constraint], [(Idx, AType Idx)])
     handlePat pat expected = case pat of
-        WildcardPattern   -> Right ([], [])
-        LiteralPattern ex -> Right $ (, []) $ case ex of
+        WildcardPattern   -> pure ([], Map.empty)
+        LiteralPattern ex -> pure $ (, Map.empty) $ case ex of
             LitInt    _ -> [Constraint IntType expected]
             LitBool   _ -> [Constraint BooleanType expected]
             LitString _ -> [Constraint StringType expected]
             LitUnit     -> [Constraint UnitType expected]
             _           -> error "Not a literal"
-        IdPattern idx                       -> Right ([], [(idx, expected)])
-        EnumPattern idx (EnumType p _) pats -> case expected of
-            EnumType p' targs' | idIdx p == idIdx p' -> undefined
-            _ -> Left "Type Mismatch"
-          where
-            Just (ConstrSig _ params _) =
-                Map.lookup p (constructors st) >>= Map.lookup idx
-        _ -> undefined
+        IdPattern idx           -> pure ([], Map.fromList [(idx, expected)])
+        EnumPattern idx at pats -> do
+            let EnumType p _ = at
+            let Just (ConstrSig targs params ret) =
+                    Map.lookup p (constructors st) >>= Map.lookup idx
+            i <- lift get
+            lift . put $ i + length targs
+            let
+                ps = typeApp (zip (map (\(TypeParam x) -> x) targs) [i ..])
+                             params
+            (cs, es) <- unzip <$> zipWithM handlePat pats ps
+            pure
+                ( concat cs {- ++ [Constraint at expected] -}
+                , foldr Map.union Map.empty es
+                )
 
 -- | eval state and get the constarint
 runConstraint :: CheckState [Constraint] -> Either String [Constraint]
 runConstraint cs = evalState (runExceptT cs) 0
 
+testCons :: [Definition Idx] -> SymbolTable -> [[Constraint]]
+testCons dfs st = concat . sequence $  helper (\d -> runConstraint (genConstraint d st)) dfs
+  where
+    helper _ []                = []
+    helper f (x@FunDef{} : xs) = f x : helper f xs
+    helper f (_          : xs) = helper f xs
+
 -- | substitue tmp type var i to type t
 subst :: [Constraint] -> Int -> AType Idx -> [Constraint]
-subst cs i t = undefined
+subst cs i t =
+    (\(Constraint fo ex) -> Constraint (ss fo i t) (ss ex i t)) <$> cs
+  where
+    ss (Counted x) f t | f == x = t
+    ss (EnumType a ts) f t      = EnumType a $ map (\tpe -> ss tpe f t) ts
+    ss tpe             _ _      = tpe
 
 -- | solve type constraint
 solveConstraint :: [Constraint] -> Either String ()
-solveConstraint = undefined
+solveConstraint []                    = Right ()
+solveConstraint (Constraint f e : cs) = undefined

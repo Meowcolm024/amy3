@@ -19,6 +19,9 @@ main = do
                 mapM_ print pg
                 putStrLn "\n<Check types>\n"
                 print $ checkEnum pg st
+                putStrLn "\n<Constraints>\n"
+                mapM_ (\x -> mapM_ print x *> putStrLn "--------")
+                    $ testCons pg st
             Left msg -> hPutStrLn stderr msg *> exitFailure
 
     hClose handle

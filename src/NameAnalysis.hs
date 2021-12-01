@@ -8,7 +8,9 @@ import           Control.Monad.Trans.Class      ( MonadTrans(lift) )
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.State
 import qualified Data.Map                      as Map
-import           Data.Maybe                     ( isJust )
+import           Data.Maybe                     ( fromJust
+                                                , isJust
+                                                )
 import           SymbolTable
 import           Types
 import           Utils                          ( isMainDef )
@@ -231,10 +233,21 @@ tranfromFunc (FunDef name targs params ret body : st) = do
             Neg ex           -> Neg <$> tf ex env
             Call fun exs     -> case lookupName fun s of
                 Nothing -> throwError $ "Unknown function: " ++ fun
-                Just fx -> Call fx <$> traverse (`tf` env) exs
+                Just fx ->
+                    let FunSig _ pms _ = fromJust (Map.lookup fx f)
+                    in  if length pms /= length exs
+                            then
+                                throwError
+                                $  "Wrong argument number of function "
+                                ++ fun
+                            else Call fx <$> traverse (`tf` env) exs
             ConstrCall cs (EnumType ty tas) exs -> case lookupConstr ty cs s of
-                Just (cid, ConstrSig _ _ pt) ->
-                    ConstrCall cid pt <$> traverse (`tf` env) exs
+                Just (cid, ConstrSig _ pms pt) -> if length pms /= length exs
+                    then
+                        throwError
+                        $  "Wrong argument number of constructor "
+                        ++ cs
+                    else ConstrCall cid pt <$> traverse (`tf` env) exs
                 _ ->
                     throwError
                         $  "Unknown constructor "
