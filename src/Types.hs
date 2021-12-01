@@ -208,7 +208,7 @@ data Idx = Idx
     }
 
 instance Show Idx where
-    show (Idx n i) = n ++ "<" ++ show i ++ ">"
+    show (Idx n i) = n ++ "_" ++ show i
 
 instance Eq Idx where
     (Idx _ i) == (Idx _ j) = i == j

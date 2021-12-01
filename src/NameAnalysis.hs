@@ -39,11 +39,11 @@ addTargs (_           : ts) i = addTargs ts i
 -- | discover types
 addTypes :: Program String -> Analysis SymbolTable
 addTypes [] = do
-    (TableST t _ _ _) <- lift get
+    (TableST t _ _) <- lift get
     pure t
 addTypes (EnumDef name targs _ : ts) = do
     let targs' = addTargs targs 0
-    (TableST (SymbolTable dn ty f c) env lidx idx) <- lift get
+    (TableST (SymbolTable dn ty f c) lidx idx) <- lift get
     -- abort when already defined
     when (isJust $ Map.lookup name dn) $ throwError $ "Redefinition of " ++ name
     -- add to symbol table
@@ -57,7 +57,6 @@ addTypes (EnumDef name targs _ : ts) = do
             f
             c
         )
-        env
         lidx
         (idx + 1)
     addTypes ts
@@ -96,7 +95,7 @@ typeParamBinding targs =
 -- | discover type constructors
 addConstrs :: Program String -> Analysis SymbolTable
 addConstrs [] = do
-    (TableST t _ _ _) <- lift get
+    (TableST t _ _) <- lift get
     pure t
 addConstrs (EnumDef name targs csts : ts) = do
     let targs' = typeParamBinding targs
@@ -105,7 +104,7 @@ addConstrs (EnumDef name targs csts : ts) = do
   where
     addC :: [(String, Idx)] -> CaseDef String -> Analysis ()
     addC targs' ~(CaseDef caseName params (EnumType name _)) = do
-        (TableST s@(SymbolTable dn ty f c) env lidx idx) <- lift get
+        (TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
         -- check if all the params 
         case checkParams targs' s params of
             Left  ss  -> throwError ss
@@ -128,7 +127,6 @@ addConstrs (EnumDef name targs csts : ts) = do
                                 , constructors = Map.insert parId nw c
                                 }
                             )
-                            env
                             lidx
                             (idx + 1)
                         Just m -> do
@@ -151,7 +149,6 @@ addConstrs (EnumDef name targs csts : ts) = do
                                                          c
                                     }
                                 )
-                                env
                                 lidx
                                 (idx + 1)
 addConstrs (_ : ts) = addConstrs ts
@@ -159,11 +156,11 @@ addConstrs (_ : ts) = addConstrs ts
 -- | add fuction signatures
 addFuncSig :: Program String -> Analysis SymbolTable
 addFuncSig [] = do
-    (TableST t _ _ _) <- lift get
+    (TableST t _ _) <- lift get
     pure t
 addFuncSig (EntryPoint f                   : st) = addFuncSig (f : st)
 addFuncSig (FunDef name targs params ret _ : st) = do
-    (TableST s@(SymbolTable dn ty f c) env lidx idx) <- lift get
+    (TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
     -- local type vars shadows global types
     let targs' = typeParamBinding targs
     -- abort when already defined
@@ -177,7 +174,6 @@ addFuncSig (FunDef name targs params ret _ : st) = do
                    , functions  = Map.insert (Idx name idx) nw f
                    }
                 )
-                env
                 lidx
                 (idx + 1)
     addFuncSig st
@@ -189,34 +185,29 @@ tranfromFunc [] = pure []
 tranfromFunc (EntryPoint e : st) =
     (++) <$> ((EntryPoint <$>) <$> tranfromFunc [e]) <*> tranfromFunc st
 tranfromFunc (FunDef name targs params ret body : st) = do
-    tb@(TableST s _ _ _) <- lift get
+    tb@(TableST s _ _) <- lift get
     let targs'           = typeParamBinding targs
     let Right (rt : tps) = checkParams targs' s (ParamDef "ret" ret : params)
     let ps               = trParams (zip params tps) (length targs')
     let Just fi          = lookupName name s
-    lift . put $ tb { localIndex = length targs' }  -- reset local index
-    lb  <- addBindings params                       -- init local bindings
-    tb' <- lift get                                 -- get updated table
-    lift . put $ tb' { locals = Map.union lb $ Map.fromList targs' }  -- reset locals
-    result <- tf body                               -- analyze body
+    let (nls, lidx) = addBindings params (Map.fromList targs', length targs') -- init local bindings
+    lift . put $ tb { localIndex = lidx }
+    result <- tf body nls                             -- analyze body
     rest   <- tranfromFunc st                       -- analyze rest
     pure $ FunDef fi (map (TypeParam . snd) targs') ps rt result : rest
   where
     -- add binding s to local env
-    addBindings []                       = pure Map.empty
-    addBindings (ParamDef name _ : rest) = do
-        t@(TableST _ _ i _) <- lift get
-        lift . put $ t { localIndex = i + 1 }
-        rest <- addBindings rest
-        pure $ Map.insert name (Idx name i) rest
+    addBindings [] mp = mp
+    addBindings (ParamDef name _ : rest) (env, i) =
+        addBindings rest (Map.insert name (Idx name i) env, i + 1)
     -- transform paramdef to idx
     trParams [] _ = []
     trParams ((ParamDef n _, ty) : rs) i =
         ParamDef (Idx n i) ty : trParams rs (i + 1)
     -- | transform expression
-    tf :: Expr String -> Analysis (Expr Idx)
-    tf expr = do
-        tb@(TableST s@(SymbolTable dn ty f c) env lidx idx) <- lift get
+    tf :: Expr String -> Local -> Analysis (Expr Idx)
+    tf expr env = do
+        tb@(TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
         case expr of
             Variable v -> case Map.lookup v env of
                 Nothing -> throwError $ "Unbounded variable : " ++ v
@@ -225,25 +216,25 @@ tranfromFunc (FunDef name targs params ret body : st) = do
             LitBool   b      -> pure $ LitBool b
             LitString str    -> pure $ LitString str
             LitUnit          -> pure LitUnit
-            Plus      ex ex' -> Plus <$> tf ex <*> tf ex'
-            Minus     ex ex' -> Minus <$> tf ex <*> tf ex'
-            Mult      ex ex' -> Mult <$> tf ex <*> tf ex'
-            Div       ex ex' -> Div <$> tf ex <*> tf ex'
-            LessThan  ex ex' -> LessThan <$> tf ex <*> tf ex'
-            LessEqual ex ex' -> LessEqual <$> tf ex <*> tf ex'
-            And       ex ex' -> And <$> tf ex <*> tf ex'
-            Or        ex ex' -> Or <$> tf ex <*> tf ex'
-            Equals    ex ex' -> Equals <$> tf ex <*> tf ex'
-            Concat    ex ex' -> Concat <$> tf ex <*> tf ex'
-            Seq       ex ex' -> Seq <$> tf ex <*> tf ex'
-            Not ex           -> Not <$> tf ex
-            Neg ex           -> Neg <$> tf ex
+            Plus      ex ex' -> Plus <$> tf ex env <*> tf ex' env
+            Minus     ex ex' -> Minus <$> tf ex env <*> tf ex' env
+            Mult      ex ex' -> Mult <$> tf ex env <*> tf ex' env
+            Div       ex ex' -> Div <$> tf ex env <*> tf ex' env
+            LessThan  ex ex' -> LessThan <$> tf ex env <*> tf ex' env
+            LessEqual ex ex' -> LessEqual <$> tf ex env <*> tf ex' env
+            And       ex ex' -> And <$> tf ex env <*> tf ex' env
+            Or        ex ex' -> Or <$> tf ex env <*> tf ex' env
+            Equals    ex ex' -> Equals <$> tf ex env <*> tf ex' env
+            Concat    ex ex' -> Concat <$> tf ex env <*> tf ex' env
+            Seq       ex ex' -> Seq <$> tf ex env <*> tf ex' env
+            Not ex           -> Not <$> tf ex env
+            Neg ex           -> Neg <$> tf ex env
             Call fun exs     -> case lookupName fun s of
                 Nothing -> throwError $ "Unknown function: " ++ fun
-                Just fx -> Call fx <$> traverse tf exs
+                Just fx -> Call fx <$> traverse (`tf` env) exs
             ConstrCall cs (EnumType ty tas) exs -> case lookupConstr ty cs s of
                 Just (cid, ConstrSig _ _ pt) ->
-                    ConstrCall cid pt <$> traverse tf exs
+                    ConstrCall cid pt <$> traverse (`tf` env) exs
                 _ ->
                     throwError
                         $  "Unknown constructor "
@@ -252,58 +243,63 @@ tranfromFunc (FunDef name targs params ret body : st) = do
                         ++ ty
             Let (ParamDef name t) ex ex' -> do
                 let name' = Idx name lidx
-                e1 <- tf ex
-                lift . put $ tb { locals     = Map.insert name name' env
-                                , localIndex = lidx + 1
-                                }
+                e1 <- tf ex env
+                lift . put $ tb { localIndex = lidx + 1 }
                 Let
-                    <$> (ParamDef name' <$> refactorType t)
+                    <$> (ParamDef name' <$> refactorType t env)
                     <*> pure e1
-                    <*> tf ex'
-            IfElse ex ex' ex3 -> IfElse <$> tf ex <*> tf ex' <*> tf ex3
-            Match ex mcs      -> Match <$> tf ex <*> traverse handleCases mcs
-            Bottom ex         -> Bottom <$> tf ex
-            _                 -> throwError "???"
+                    <*> tf ex' (Map.insert name name' env)
+            IfElse ex ex' ex3 ->
+                IfElse <$> tf ex env <*> tf ex' env <*> tf ex3 env
+            Match ex mcs -> do
+                tb@(TableST s _ _) <- lift get
+                Match <$> tf ex env <*> traverse (handleCases env) mcs
+            Bottom ex -> Bottom <$> tf ex env
+            _         -> throwError "???"
     -- transform types
-    refactorType :: AType String -> Analysis (AType Idx)
-    refactorType (TypeParam t) = do
-        tb <- lift get
-        case Map.lookup t (locals tb) of
+    refactorType :: AType String -> Local -> Analysis (AType Idx)
+    refactorType (TypeParam t) env = do
+        case Map.lookup t env of
             Nothing  -> throwError $ "Unbounded type variable: " ++ t
             Just idx -> pure $ TypeParam idx
-    refactorType (EnumType name targs) = do
-        TableST s _ _ _ <- lift get
+    refactorType (EnumType name targs) env = do
+        TableST s _ _ <- lift get
         case lookupName name s of
             Nothing  -> throwError $ "Unbounded type variable: " ++ name
-            Just idx -> EnumType idx <$> traverse refactorType targs
-    refactorType t = pure $ fmap (const (Idx "" 0)) t
+            Just idx -> EnumType idx <$> traverse (`refactorType` env) targs
+    refactorType t env = pure $ fmap (const (Idx "" 0)) t
 
-    handleCases :: MatchCase String -> Analysis (MatchCase Idx)
-    handleCases (MatchCase pat expr) = MatchCase <$> handlePat pat <*> tf expr
+    handleCases :: Local -> MatchCase String -> Analysis (MatchCase Idx)
+    handleCases env (MatchCase pat expr) = do
+        (pt, lc) <- handlePat pat env
+        rs       <- tf expr (Map.union lc env)
+        pure $ MatchCase pt rs
 
-    handlePat :: Pattern String -> Analysis (Pattern Idx)
-    handlePat WildcardPattern       = pure WildcardPattern
-    handlePat (LiteralPattern i   ) = LiteralPattern <$> tf i
-    handlePat (IdPattern      name) = do
-        tb@(TableST s@(SymbolTable dn ty f c) env lidx idx) <- lift get
+    handlePat :: Pattern String -> Local -> Analysis (Pattern Idx, Local)
+    handlePat WildcardPattern    _   = pure (WildcardPattern, Map.empty)
+    handlePat (LiteralPattern i) env = do
+        rs <- tf i env
+        pure (LiteralPattern rs, Map.empty)
+    handlePat (IdPattern name) env = do
+        tb@(TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
         case Map.lookup name env of
             Just _  -> throwError $ "Variable already defined: " ++ name
             Nothing -> do
                 let name' = Idx name lidx
-                lift . put $ tb { locals     = Map.insert name name' env
-                                , localIndex = lidx + 1
-                                }
-                pure $ IdPattern name'
-    handlePat ~(EnumPattern cn (EnumType tn _) pats) = do
-        tb@(TableST s@(SymbolTable dn ty f c) env lidx idx) <- lift get
+                lift . put $ tb { localIndex = lidx + 1 }
+                pure (IdPattern name', Map.insert name name' env)
+    handlePat ~(EnumPattern cn (EnumType tn _) pats) env = do
+        tb@(TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
         case lookupConstr tn cn s of
-            Just (cid, ConstrSig _ _ pt) ->
-                EnumPattern cid pt <$> traverse handlePat pats
+            Just (cid, ConstrSig _ _ pt) -> do
+                (pts, env') <- unzip <$> traverse (`handlePat` env) pats
+                -- EnumPattern cid pt
+                pure (EnumPattern cid pt pts, foldr Map.union Map.empty env')
             _ ->
                 throwError $ "Unknown constructor " ++ cn ++ " for type " ++ tn
 -- transform enum definition
 tranfromFunc (EnumDef name targs cases : st) = do
-    (TableST s@(SymbolTable dn ty f c) _ _ _) <- lift get
+    (TableST s@(SymbolTable dn ty f c) lidx _) <- lift get
     let Just nidx                       = Map.lookup name dn
     let Just (TypeSig (EnumType _ ats)) = Map.lookup nidx ty
     let

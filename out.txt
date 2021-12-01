@@ -1,84 +1,84 @@
 <Types>
-Maybe<0>:
-  Nothing<4> := ConstrSig [~A<0>] [] Maybe<0>[~A<0>]
-  Just<5> := ConstrSig [~A<0>] [~A<0>] Maybe<0>[~A<0>]
+Maybe_0:
+  Nothing_4 := ConstrSig [~A_0] [] Maybe_0[~A_0]
+  Just_5 := ConstrSig [~A_0] [~A_0] Maybe_0[~A_0]
 
-Color<1>:
-  Red<6> := ConstrSig [] [] Color<1>[]
-  Green<7> := ConstrSig [] [] Color<1>[]
-  Blue<8> := ConstrSig [] [] Color<1>[]
+Color_1:
+  Red_6 := ConstrSig [] [] Color_1[]
+  Green_7 := ConstrSig [] [] Color_1[]
+  Blue_8 := ConstrSig [] [] Color_1[]
 
-List<2>:
-  Nil<9> := ConstrSig [~A<0>] [] List<2>[~A<0>]
-  Cons<10> := ConstrSig [~A<0>] [~A<0>,List<2>[~A<0>]] List<2>[~A<0>]
+List_2:
+  Nil_9 := ConstrSig [~A_0] [] List_2[~A_0]
+  Cons_10 := ConstrSig [~A_0] [~A_0,List_2[~A_0]] List_2[~A_0]
 
-Pair<3>:
-  Pair<11> := ConstrSig [~A<0>,~B<1>] [~A<0>,~B<1>] Pair<3>[~A<0>, ~B<1>]
+Pair_3:
+  Pair_11 := ConstrSig [~A_0,~B_1] [~A_0,~B_1] Pair_3[~A_0, ~B_1]
 
 
 <Functions>
-  readLine<-3> := FunSig [] [] String
-  println<-2> := FunSig [] [String] Unit
-  print<-1> := FunSig [] [String] Unit
-  getOr<12> := FunSig [~A<0>] [Maybe<0>[~A<0>],~A<0>] ~A<0>
-  listToPair<13> := FunSig [~A<0>] [List<2>[~A<0>]] Maybe<0>[Pair<3>[~A<0>, Color<1>[], List<2>[~A<0>]]]
-  swap<14> := FunSig [~A<0>,~B<1>] [Pair<3>[~A<0>, ~B<1>]] Pair<3>[~B<1>, ~A<0>]
-  safeDiv<15> := FunSig [] [Int,Int] Maybe<0>[Int]
-  hello<16> := FunSig [] [] Unit
+  readLine_-3 := FunSig [] [] String
+  println_-2 := FunSig [] [String] Unit
+  print_-1 := FunSig [] [String] Unit
+  getOr_12 := FunSig [~A_0] [Maybe_0[~A_0],~A_0] ~A_0
+  listToPair_13 := FunSig [~A_0] [List_2[~A_0]] Maybe_0[Pair_3[~A_0, List_2[~A_0]]]
+  swap_14 := FunSig [~A_0,~B_1] [Pair_3[~A_0, ~B_1]] Pair_3[~B_1, ~A_0]
+  safeDiv_15 := FunSig [] [Int,Int] Maybe_0[Int]
+  hello_16 := FunSig [] [] Unit
 
 
 <Program>
 
-enum Maybe<0>[~A<0>] {
-  case Nothing<4>() : Maybe<0>[~A<0>]
-  case Just<5>(n<0>: ~A<0>) : Maybe<0>[~A<0>]
+enum Maybe_0[~A_0] {
+  case Nothing_4() : Maybe_0[~A_0]
+  case Just_5(n_0: ~A_0) : Maybe_0[~A_0]
 }
-enum Color<1>[] {
-  case Red<6>() : Color<1>[]
-  case Green<7>() : Color<1>[]
-  case Blue<8>() : Color<1>[]
+enum Color_1[] {
+  case Red_6() : Color_1[]
+  case Green_7() : Color_1[]
+  case Blue_8() : Color_1[]
 }
-enum List<2>[~A<0>] {
-  case Nil<9>() : List<2>[~A<0>]
-  case Cons<10>(head<0>: ~A<0>, tail<1>: List<2>[~A<0>]) : List<2>[~A<0>]
+enum List_2[~A_0] {
+  case Nil_9() : List_2[~A_0]
+  case Cons_10(head_0: ~A_0, tail_1: List_2[~A_0]) : List_2[~A_0]
 }
-enum Pair<3>[~A<0>, ~B<1>] {
-  case Pair<11>(x<0>: ~A<0>, y<1>: ~B<1>) : Pair<3>[~A<0>, ~B<1>]
+enum Pair_3[~A_0, ~B_1] {
+  case Pair_11(x_0: ~A_0, y_1: ~B_1) : Pair_3[~A_0, ~B_1]
 }
-def getOr<12>[~A<0>](m<1>: Maybe<0>[~A<0>], opt<2>: ~A<0>): ~A<0> = {
-(m<1>) match {
-case Maybe<0>.Nothing<4>() => opt<2>
-case Maybe<0>.Just<5>(n<3>) => n<3>
-}
-}
-def listToPair<13>[~A<0>](l<1>: List<2>[~A<0>]): Maybe<0>[Pair<3>[~A<0>, Color<1>[], List<2>[~A<0>]]] = {
-(l<1>) match {
-case List<2>.Nil<9>() => Maybe<0>.Nothing<4>()
-case List<2>.Cons<10>(h<2>, t<3>) => Maybe<0>.Just<5>(Pair<3>.Pair<11>(h<2>, t<3>))
+def getOr_12[~A_0](m_1: Maybe_0[~A_0], opt_2: ~A_0): ~A_0 = {
+(m_1) match {
+case Maybe_0.Nothing_4() => opt_2
+case Maybe_0.Just_5(n_3) => n_3
 }
 }
-def swap<14>[~A<0>, ~B<1>](p<2>: Pair<3>[~A<0>, ~B<1>]): Pair<3>[~B<1>, ~A<0>] = {
-(p<2>) match {
-case Pair<3>.Pair<11>(x<3>, y<4>) => Pair<3>.Pair<11>(y<4>, x<3>)
+def listToPair_13[~A_0](l_1: List_2[~A_0]): Maybe_0[Pair_3[~A_0, List_2[~A_0]]] = {
+(l_1) match {
+case List_2.Nil_9() => Maybe_0.Nothing_4()
+case List_2.Cons_10(h_2, t_3) => Maybe_0.Just_5(Pair_3.Pair_11(h_2, t_3))
 }
 }
-def safeDiv<15>[](x<0>: Int, y<1>: Int): Maybe<0>[Int] = {
-if (!((y<1>) == (0))) {
-Maybe<0>.Just<5>((x<0>) / (y<1>))
+def swap_14[~A_0, ~B_1](p_2: Pair_3[~A_0, ~B_1]): Pair_3[~B_1, ~A_0] = {
+(p_2) match {
+case Pair_3.Pair_11(x_3, y_4) => Pair_3.Pair_11(y_4, x_3)
+}
+}
+def safeDiv_15[](x_0: Int, y_1: Int): Maybe_0[Int] = {
+if (!((y_1) == (0))) {
+Maybe_0.Just_5((x_0) / (y_1))
 } else {
-Maybe<0>.Nothing<4>()
+Maybe_0.Nothing_4()
 }
 }
 [<main>]
-def hello<16>[](): Unit = {
-val a<0>: Maybe<0>[Int] = Maybe<0>.Just<5>(3);
-val b<1>: Int = (2) + (3);
-val l<2>: List<2>[Boolean] = List<2>.Cons<10>(True, List<2>.Cons<10>(False, List<2>.Nil<9>()));
-val cp<3>: Pair<3>[Color<1>[], Maybe<0>[Color<1>[]]] = Pair<3>.Pair<11>(Color<1>.Red<6>(), Maybe<0>.Just<5>(Color<1>.Blue<8>()));
-println<-2>(safeDiv<15>(getOr<12>(a<0>, b<1>), 0));
-val b<4>: Boolean = (True) || (False);
-println<-2>(((-(1)) == ((5) * (6))) && (!(b<4>)));
-println<-2>(listToPair<13>(l<2>))
+def hello_16[](): Unit = {
+val a_0: Maybe_0[Int] = Maybe_0.Just_5(3);
+val b_1: Int = (2) + (3);
+val l_2: List_2[Boolean] = List_2.Cons_10(True, List_2.Cons_10(False, List_2.Nil_9()));
+val cp_3: Pair_3[Color_1[], Maybe_0[Color_1[]]] = Pair_3.Pair_11(Color_1.Red_6(), Maybe_0.Just_5(Color_1.Blue_8()));
+println_-2(safeDiv_15(getOr_12(a_0, b_1), 0));
+val b_4: Boolean = ((True) || ((False) && (!((4) <= (3))))) || (!(!(((1) + (1)) < (3))));
+println_-2((!((-(1)) == ((5) * (-(6))))) && (b_4));
+println_-2(listToPair_13(l_2))
 }
 
 <Check types>

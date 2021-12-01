@@ -46,17 +46,17 @@ lookupConstr tn cn table = do
 -- | table used in state monad
 data TableST = TableST
     { table      :: SymbolTable             -- ^ symbol table
-    , locals     :: Map.Map String Idx      -- ^ local env
     , localIndex :: Int                     -- ^ local index counter
     , index      :: Int                     -- ^ global index counter
     }
     deriving Show
 
+type Local = Map.Map String Idx      -- ^ local env
+
 -- | empty table for state
 emptyTable :: TableST
 emptyTable = TableST
     (SymbolTable (Map.fromList pds) Map.empty (Map.fromList pfs) Map.empty)
-    Map.empty
     0
     0
   where
