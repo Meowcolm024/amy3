@@ -31,6 +31,6 @@ def hi(): Unit = {
     // omg()
     val l : List[Int] = getList();
     println(toString(l));
-    println("length is " ++ toString(length(l)));
+    println("double length is " ++ toString(length(append(l,l))));
     println("sum is " ++ toString(sum(l)))
 }

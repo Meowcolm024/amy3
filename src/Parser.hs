@@ -225,3 +225,4 @@ term7 =
         <|> try constrCall
         <|> try call
         <|> variable
+        <|> bottom
