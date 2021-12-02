@@ -9,6 +9,7 @@ import           SymbolTable
 import           System.IO
 import           TypeChecker
 import           Types
+import Utils (removeQuot)
 
 loadProgram :: String -> Either String (Program Idx, SymbolTable, FuncTable)
 loadProgram p = do
@@ -50,3 +51,6 @@ runInterpret fun f = do
             Left  s  -> pure $ Left s
             Right pg -> Right <$> ri pg st ft
     where ri ~(FunDef _ _ _ _ body) = interpret body Map.empty
+
+printExpr :: Expr Idx -> String
+printExpr = removeQuot

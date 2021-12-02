@@ -20,9 +20,12 @@ testMath = hspec $ describe "test math" $ do
 testTypeErr :: IO ()
 testTypeErr = hspec $ describe "test type errpr" $ do
     let file = readFile "test/resources/TypeErr.scala"
+    let file2 = readFile "test/resources/TypeErr2.scala"
     it "type not check" $ do
         r <- loadProgram <$> file
         r `shouldSatisfy` isLeft
+        r2 <- loadProgram <$> file2
+        r2 `shouldSatisfy` isLeft
 
 testList :: IO ()
 testList = hspec $ describe "test list" $ do
@@ -38,8 +41,8 @@ testList = hspec $ describe "test list" $ do
         result `shouldBe` Right (LitBool False)
     it "sort test" $ do
         result <- run "testSort"
-        let z = (\x -> filter (/= '"') . show $ nameIdx <$> x) <$> result
         let
-            out
-                = "List.Cons(0, List.Cons(1, List.Cons(2, List.Cons(3, List.Cons(4, List.Cons(6, List.Cons(7, List.Cons(9, List.Nil()))))))))"
-        z `shouldBe` Right out
+            out =
+                "List.Cons(0, List.Cons(1, List.Cons(2, List.Cons(3,"
+                    ++ " List.Cons(4, List.Cons(6, List.Cons(7, List.Cons(9, List.Nil()))))))))"
+        printExpr <$> result `shouldBe` Right out

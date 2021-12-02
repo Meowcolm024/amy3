@@ -145,7 +145,7 @@ instance Show a => Show (Expr a) where
     show e = case e of
         Variable  a      -> show a
         LitInt    n      -> show n
-        LitBool   b      -> show b
+        LitBool   b      -> if b then "true" else "false"
         LitString s      -> show s
         LitUnit          -> "()"
         Plus      ex ex' -> "(" ++ show ex ++ ") + (" ++ show ex' ++ ")"

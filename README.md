@@ -41,12 +41,15 @@ Run an example:
 
 ``` sh
 $ stack run -- -i examples/Hi.scala examples/Lib.scala
-False
-True
-Maybe.Just(True)
-Input a number ('x' to finish): 
+false
+true
+Maybe.Just(true)
+Input a number ('x' to finish):  
 ```
 
-## Features
+## Difference
 
-OwO
+1. removed *modules*
+2. removed *abstract class* and *case class* style, ADT, in favor of the *enum* syntax
+3. need to supply a main function using `@main`
+4. added parametric types for ADT and functions

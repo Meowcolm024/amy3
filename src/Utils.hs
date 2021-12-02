@@ -14,3 +14,6 @@ isEnumPat _             = False
 
 evalError :: String -> IO a
 evalError msg = hPutStrLn stderr ("[Error] " ++ msg) *> exitFailure
+
+removeQuot :: (Show (f String), Functor f) => f Idx -> String
+removeQuot expr = filter (/= '"') . show $ nameIdx <$> expr
