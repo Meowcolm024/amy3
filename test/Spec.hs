@@ -1,34 +1,6 @@
-{-# LANGUAGE LambdaCase #-}
-import           Control.Monad
-import qualified Data.Map                      as Map
-import           Interpreter
-import           NameAnalysis
-import           Parser
-import           SymbolTable                    ( buildFuncTable )
-import           System.Exit                    ( exitFailure )
-import           System.IO
-import           TypeChecker
+import           Tests
 
 main :: IO ()
 main = do
-    handle   <- openFile "examples/Hello.scala" ReadMode
-    contents <- hGetContents handle
-    case parseProgram contents of
-        Left  pe  -> error $ show pe
-        Right des -> case analyze des of
-            Right (st, pg) -> do
-                print st
-                putStrLn "\n<Program>\n"
-                mapM_ print pg
-                putStrLn "\n<Check types>\n"
-                let tcs = runConstraint pg st
-                putStrLn "\n<Constraints>\n"
-                mapM_ (\x -> mapM_ print x *> putStrLn "--------") tcs
-                putStrLn "\n<Solved>\n"
-                print $ checkType pg st
-
-            Left msg -> hPutStrLn stderr msg *> exitFailure
-
-
-
-    hClose handle
+    testMath
+    testTypeErr

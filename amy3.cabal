@@ -70,6 +70,9 @@ test-suite amy3-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TestHelper
+      Tests
+      TestUtil
       Paths_amy3
   hs-source-dirs:
       test
@@ -78,6 +81,7 @@ test-suite amy3-test
       amy3
     , base >=4.7 && <5
     , containers >=0.6.5 && <0.7
+    , hspec
     , mtl >=2.2 && <3
     , optparse-applicative >=0.16.1 && <0.17
     , parsec >=3.1 && <4

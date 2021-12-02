@@ -18,11 +18,11 @@ type Env = Map.Map Idx (Expr Idx)
 execMain :: Program Idx -> SymbolTable -> FuncTable -> IO ()
 execMain [] _ _ = pure ()
 execMain (EntryPoint (FunDef _ _ _ _ body) : _) st ft =
-    interpret body Map.empty st ft
+    void $ interpret body Map.empty st ft
 execMain (_ : r) st ft = execMain r st ft
 
-interpret :: Expr Idx -> Env -> SymbolTable -> FuncTable -> IO ()
-interpret ex ev st ft = void $ eval ex ev
+interpret :: Expr Idx -> Env -> SymbolTable -> FuncTable -> IO (Expr Idx)
+interpret ex ev st ft = eval ex ev
   where
     eval :: Expr Idx -> Env -> IO (Expr Idx)
     eval expr env = case expr of
