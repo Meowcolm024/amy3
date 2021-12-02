@@ -1,21 +1,18 @@
 module Interpreter
     ( interpret
     , execMain
-    , evalError
     ) where
 
 import           Control.Monad
 import           Data.Functor                   ( ($>) )
 import qualified Data.Map                      as Map
 import           SymbolTable
-import           System.Exit                    ( exitFailure )
 import           System.IO
+import           Text.Read                      ( readMaybe )
 import           Types
+import           Utils                          ( evalError )
 
 type Env = Map.Map Idx (Expr Idx)
-
-evalError :: String -> IO a
-evalError msg = hPutStrLn stderr msg *> exitFailure
 
 -- execMain :: Definition Idx -> IO ()
 execMain :: Program Idx -> SymbolTable -> FuncTable -> IO ()
@@ -140,8 +137,12 @@ interpret ex ev st ft = void $ eval ex ev
                 _ -> Nothing
 
 evalPrimitive :: String -> [Expr Idx] -> IO (Expr Idx)
-evalPrimitive "print" [LitString s] = putStr s *> hFlush stdout $> LitUnit
-evalPrimitive "println" [LitString s] = putStrLn s *> hFlush stdout $> LitUnit
-evalPrimitive "readLine" [] = LitString <$> getLine
-evalPrimitive "digitToString" [LitInt i] = pure $ LitString (show i)
+evalPrimitive "print"    [LitString s] = putStr s *> hFlush stdout $> LitUnit
+evalPrimitive "println"  [LitString s] = putStrLn s *> hFlush stdout $> LitUnit
+evalPrimitive "readLine" []            = LitString <$> getLine
+evalPrimitive "parseInt" [LitString s] = case readMaybe s :: Maybe Integer of
+    Nothing -> evalError $ "Cannot parse Int: " ++ s
+    Just i  -> pure $ LitInt i
+evalPrimitive "toString" [s] =
+    pure $ LitString . filter (/= '"') . show $ nameIdx <$> s
 evalPrimitive _ _ = evalError ""

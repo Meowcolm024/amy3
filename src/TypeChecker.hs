@@ -207,12 +207,13 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
                     Map.lookup p (constructors st) >>= Map.lookup idx
             i <- get
             put $ i + length targs
-            let
-                ps = typeApp (zip (map (\(TypeParam x) -> x) targs) [i ..])
-                             params
+            let tp  = zip (map (\(TypeParam x) -> x) targs) [i ..]
+            -- map type variables to counted
+            let tap = map (\(_, i)-> Counted i) tp
+            let ps  = typeApp tp params
             (cs, es) <- unzip <$> zipWithM handlePat pats ps
             pure
-                ( concat cs ++ [Constraint at expected]
+                ( concat cs ++ [Constraint (EnumType p tap) expected]
                 , foldr Map.union Map.empty es
                 )
 

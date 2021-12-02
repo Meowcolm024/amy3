@@ -1,25 +1,48 @@
 module Main where
 
-import           Interpreter                    ( execMain, evalError )
-import           NameAnalysis                   ( analyze )
-import           Parser                         ( parseProgram )
-import           SymbolTable                    ( buildFuncTable )
-import           System.IO
-import           TypeChecker                    ( checkType )
+import           Options.Applicative
+import           Pipe
+import           Utils                          ( evalError )
+
+data Mode = Interpret | Js deriving Show
+
+data Opts = Opts
+    { inputFiles :: [String]
+    , mode       :: Mode
+    , optmize    :: Bool
+    , output     :: Maybe String
+    }
 
 main :: IO ()
-main = interpretMode "examples/Hi.scala"
+main = entry =<< execParser opts
+  where
+    opts = info (cli <**> helper) (fullDesc <> progDesc des <> header hd)
+    des =
+        "amy3 is a subset of the Scala Programming Language. "
+            ++ "It can be directly interpreted or compiled to JavaScript"
+    hd = "amy3 - The amy3 language interpreter/compiler"
 
-interpretMode :: String -> IO ()
-interpretMode filename = do
-    handle   <- openFile filename ReadMode
-    contents <- hGetContents handle
-    case parseProgram contents of
-        Left  pe  -> evalError (show pe) 
-        Right des -> case analyze des of
-            Left  s        -> evalError (show s)
-            Right (st, pg) -> case checkType pg st of
-                Left  s -> evalError (show s)
-                Right _ -> execMain pg st (buildFuncTable pg)
-    hClose handle
+
+entry :: Opts -> IO ()
+entry (Opts [] _ _ _) = evalError "Not input file!"
+entry (Opts fs m _ _) = case m of
+    Interpret -> interpretMode fs
+    Js        -> error "not implemented"
+
+cli :: Parser Opts
+cli =
+    Opts
+        <$> many (argument str (metavar "TARGET..."))
+        <*> flag Js
+                 Interpret
+                 (long "interpret" <> short 'i' <> help "Interpret program")
+        <*> switch (long "optimize" <> short 'O' <> help "Turn on optimization")
+        <*> optional
+                (  strOption
+                $  long "output"
+                <> short 'o'
+                <> metavar "FILE"
+                <> value "out.js"
+                <> help "Write output to FILE"
+                )
 
