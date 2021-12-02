@@ -20,7 +20,7 @@ testMath = hspec $ do
 
 testTypeErr :: IO ()
 testTypeErr = hspec $ do
-    describe "test typeerr" $ do
+    describe "test type errpr" $ do
         let file = readFile "test/resources/TypeErr.scala"
         it "type not check" $ do
             r <- loadProgram <$> file
@@ -28,7 +28,7 @@ testTypeErr = hspec $ do
 
 testList :: IO ()
 testList = hspec $ do
-    describe "test typeerr" $ do
+    describe "test list" $ do
         let file = readFile "test/resources/List.scala"
         let run f = runInterpret f =<< file
         it "sum list" $ do
