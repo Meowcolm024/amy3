@@ -80,8 +80,8 @@ primitives = Map.fromList $ map
     [ Primitive "print"       [StringType] UnitType
     , Primitive "println"     [StringType] UnitType
     , Primitive "readLine"    []           StringType
-    , Primitive "intToString" [IntType]    StringType
     , Primitive "parseInt"    [StringType] IntType
+    , Primitive "toString"    [AnyType]    StringType
     ]
 
 -- | convert primitives to signatures
