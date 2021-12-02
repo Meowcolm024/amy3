@@ -9,9 +9,9 @@ version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/meowcolm024/amy3#readme>
 homepage:       https://github.com/meowcolm024/amy3#readme
 bug-reports:    https://github.com/meowcolm024/amy3/issues
-author:         Meowcolm024
+author:         Malcolm Law
 maintainer:     luoyicong1026@live.com
-copyright:      2021 Meowcolm024
+copyright:      2021 Malcolm Law
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple

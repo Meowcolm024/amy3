@@ -2,9 +2,9 @@ name:                amy3
 version:             0.1.0.0
 github:              "meowcolm024/amy3"
 license:             BSD3
-author:              "Meowcolm024"
+author:              "Malcolm Law"
 maintainer:          "luoyicong1026@live.com"
-copyright:           "2021 Meowcolm024"
+copyright:           "2021 Malcolm Law"
 
 extra-source-files:
 - README.md

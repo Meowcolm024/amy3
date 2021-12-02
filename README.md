@@ -23,7 +23,7 @@ $ stack build
 To show help:
 
 ``` sh
-$ run -- -h                           
+$ stack run -- -h                           
 amy3 - The amy3 language interpreter/compiler
 
 Usage: amy3-exe [TARGET...] [-i|--interpret] [-O|--optimize] [-o|--output FILE]
