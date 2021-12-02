@@ -16,14 +16,11 @@ data Opts = Opts
 main :: IO ()
 main = entry =<< execParser opts
   where
-    opts = info
-        (cli <**> helper)
-        (fullDesc <> progDesc des <> header
-            "amy3 - The amy3 language interpreter/compiler"
-        )
+    opts = info (cli <**> helper) (fullDesc <> progDesc des <> header hd)
     des =
         "amy3 is a subset of the Scala Programming Language. "
             ++ "It can be directly interpreted or compiled to JavaScript"
+    hd = "amy3 - The amy3 language interpreter/compiler"
 
 
 entry :: Opts -> IO ()

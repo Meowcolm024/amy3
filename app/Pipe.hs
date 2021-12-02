@@ -17,15 +17,14 @@ import           Utils                          ( evalError )
 
 interpretMode :: [String] -> IO ()
 interpretMode filenames = do
-    rawText <- T.concat <$> mapM TIO.readFile filenames
-    let contents = T.unpack rawText
-    case checkProgram contents of
+    rawText <- mapM TIO.readFile filenames
+    case checkProgram rawText of
         Left  s        -> evalError s
         Right (st, pg) -> execMain pg st (buildFuncTable pg)
 
-checkProgram :: String -> Either String (SymbolTable, Program Idx)
+checkProgram :: [T.Text] -> Either String (SymbolTable, Program Idx)
 checkProgram p = do
-    des      <- first show $ parseProgram p
+    des      <- concat <$> first show (traverse (parseProgram . T.unpack) p)
     (st, pg) <- analyze des
     _        <- checkType pg st
     pure (st, pg)

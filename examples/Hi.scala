@@ -8,7 +8,6 @@ def omg(): Unit = {
     } else {
         println("bye")
     }
-    
 }
 
 @main
@@ -16,7 +15,7 @@ def hi(): Unit = {
     val a: Maybe[Maybe[Int]] = Maybe.Just(Maybe.Just(12));
     val b: Maybe[Maybe[Int]] = Maybe.Just(Maybe.Nothing());
     println(toString(a == b));
-    println(toString("hello" == "hell0"));
+    println(toString("hello" != "hell0"));
     println(toString(Maybe.Just(true)));
     omg()
 }
