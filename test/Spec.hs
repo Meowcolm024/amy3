@@ -4,3 +4,4 @@ main :: IO ()
 main = do
     testMath
     testTypeErr
+    testList

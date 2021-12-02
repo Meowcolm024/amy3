@@ -25,3 +25,10 @@ def sum(l: List[Int]): Int = {
     case List.Cons(v, ls) => v + sum(ls)
   }
 }
+
+def append[A](l: List[A], r: List[A]): List[A] = {
+  l match {
+    case List.Nil() => r
+    case List.Cons(x, xs) => List.Cons(x, append(xs, r))
+  }
+}

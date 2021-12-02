@@ -1,6 +1,5 @@
 module Tests where
 
-import           Control.Exception              ( evaluate )
 import           Data.Either                    ( isLeft )
 import           Test.Hspec
 import           TestHelper
@@ -26,3 +25,15 @@ testTypeErr = hspec $ do
         it "type not check" $ do
             r <- loadProgram <$> file
             r `shouldSatisfy` isLeft
+
+testList :: IO ()
+testList = hspec $ do
+    describe "test typeerr" $ do
+        let file = readFile "test/resources/List.scala"
+        let run f = runInterpret f =<< file
+        it "sum list" $ do
+            result <- run "testSum"
+            result `shouldBe` Right (LitInt (sum [1 .. 4]))
+        it "and list" $ do
+            result <- run "testAnd"
+            result `shouldBe` Right (LitBool False)
