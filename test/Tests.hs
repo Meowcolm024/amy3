@@ -1,5 +1,6 @@
 module Tests where
 
+import           Control.Exception              ( evaluate )
 import           Data.Either                    ( isLeft )
 import           Test.Hspec
 import           TestHelper
