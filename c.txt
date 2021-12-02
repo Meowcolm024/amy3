@@ -17,17 +17,17 @@ Pair_3:
 
 
 <Functions>
+  toString_-5 := FunSig [] [Any] String
   readLine_-4 := FunSig [] [] String
   println_-3 := FunSig [] [String] Unit
   print_-2 := FunSig [] [String] Unit
-  digitToString_-1 := FunSig [] [Int] String
+  parseInt_-1 := FunSig [] [String] Int
   getOr_12 := FunSig [~A_0] [Maybe_0[~A_0],~A_0] ~A_0
   listToPair_13 := FunSig [~A_0] [List_2[~A_0]] Maybe_0[Pair_3[~A_0, List_2[~A_0]]]
   swap_14 := FunSig [~A_0,~B_1] [Pair_3[~A_0, ~B_1]] Pair_3[~B_1, ~A_0]
   safeDiv_15 := FunSig [] [Int,Int] Maybe_0[Int]
   boolToString_16 := FunSig [] [Boolean] String
-  intToString_17 := FunSig [] [Int] String
-  hello_18 := FunSig [] [] Unit
+  hello_17 := FunSig [] [] Unit
 
 
 <Program>
@@ -79,30 +79,18 @@ if (b_0) {
 "false"
 }
 }
-def intToString_17[](i_0: Int): String = {
-if ((i_0) < (0)) {
-("-") ++ (intToString_17(-(i_0)))
-} else {
-val rem_1: Int = ???;
-val div_2: Int = (i_0) / (10);
-if ((div_2) == (0)) {
-digitToString_-1(rem_1)
-} else {
-(intToString_17(div_2)) ++ (digitToString_-1(rem_1))
-}
-}
-}
 [<main>]
-def hello_18[](): Unit = {
+def hello_17[](): Unit = {
 val gb_0: Boolean = getOr_12(Maybe_0.Just_5(True), True);
 val gi_1: Int = getOr_12(Maybe_0.Just_5(1), 3);
 val a_2: Maybe_0[Int] = Maybe_0.Just_5(3);
 val b_3: Int = (2) + (3);
 val l_4: List_2[Boolean] = List_2.Cons_10(True, List_2.Cons_10(False, List_2.Nil_9()));
 val cp_5: Pair_3[Color_1[], Maybe_0[Color_1[]]] = Pair_3.Pair_11(Color_1.Red_6(), Maybe_0.Just_5(Color_1.Blue_8()));
-println_-3(intToString_17(getOr_12(safeDiv_15(getOr_12(a_2, b_3), 0), -(1))));
+println_-3(toString_-5(safeDiv_15(getOr_12(a_2, b_3), 0)));
 val b_6: Boolean = ((True) || ((False) && (!((4) <= (3))))) || (!(!(((1) + (1)) < (3))));
-println_-3(boolToString_16((!((-(1)) == ((5) * (-(6))))) && (b_6)))
+println_-3(toString_-5((!((-(1)) == ((5) * (-(6))))) && (b_6)));
+println_-3(toString_-5(listToPair_13(l_4)))
 }
 
 <Check types>
@@ -111,22 +99,22 @@ println_-3(boolToString_16((!((-(1)) == ((5) * (-(6))))) && (b_6)))
 <Constraints>
 
 Constraint {found = Maybe_0[~A_0], expected = Counter 0}
-Constraint {found = Maybe_0[~A_0], expected = Counter 0}
+Constraint {found = Maybe_0[Counter 1], expected = Counter 0}
 Constraint {found = ~A_0, expected = ~A_0}
-Constraint {found = Maybe_0[~A_0], expected = Counter 0}
+Constraint {found = Maybe_0[Counter 2], expected = Counter 0}
 Constraint {found = Counter 2, expected = ~A_0}
 --------
 Constraint {found = List_2[~A_0], expected = Counter 0}
-Constraint {found = List_2[~A_0], expected = Counter 0}
+Constraint {found = List_2[Counter 1], expected = Counter 0}
 Constraint {found = Maybe_0[Counter 2], expected = Maybe_0[Pair_3[~A_0, List_2[~A_0]]]}
-Constraint {found = List_2[~A_0], expected = Counter 0}
+Constraint {found = List_2[Counter 3], expected = Counter 0}
 Constraint {found = Counter 3, expected = Counter 5}
 Constraint {found = List_2[Counter 3], expected = Counter 6}
 Constraint {found = Pair_3[Counter 5, Counter 6], expected = Counter 4}
 Constraint {found = Maybe_0[Counter 4], expected = Maybe_0[Pair_3[~A_0, List_2[~A_0]]]}
 --------
 Constraint {found = Pair_3[~A_0, ~B_1], expected = Counter 0}
-Constraint {found = Pair_3[~A_0, ~B_1], expected = Counter 0}
+Constraint {found = Pair_3[Counter 1, Counter 2], expected = Counter 0}
 Constraint {found = Counter 2, expected = Counter 3}
 Constraint {found = Counter 1, expected = Counter 4}
 Constraint {found = Pair_3[Counter 3, Counter 4], expected = Pair_3[~B_1, ~A_0]}
@@ -145,33 +133,6 @@ Constraint {found = Counter 1, expected = Maybe_0[Int]}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = String, expected = Counter 0}
 Constraint {found = String, expected = Counter 0}
-Constraint {found = Counter 0, expected = String}
---------
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = String, expected = String}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = String, expected = String}
-Constraint {found = String, expected = Counter 0}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 1}
-Constraint {found = Int, expected = Counter 1}
-Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Int, expected = Int}
-Constraint {found = String, expected = Counter 2}
-Constraint {found = Int, expected = Int}
-Constraint {found = String, expected = String}
-Constraint {found = Int, expected = Int}
-Constraint {found = String, expected = String}
-Constraint {found = String, expected = Counter 2}
-Constraint {found = Counter 2, expected = Counter 0}
 Constraint {found = Counter 0, expected = String}
 --------
 Constraint {found = Boolean, expected = Counter 1}
@@ -196,14 +157,11 @@ Constraint {found = Color_1[], expected = Counter 8}
 Constraint {found = Color_1[], expected = Counter 10}
 Constraint {found = Maybe_0[Counter 10], expected = Counter 9}
 Constraint {found = Pair_3[Counter 8, Counter 9], expected = Pair_3[Color_1[], Maybe_0[Color_1[]]]}
-Constraint {found = Maybe_0[Int], expected = Maybe_0[Counter 12]}
-Constraint {found = Int, expected = Counter 12}
-Constraint {found = Counter 12, expected = Int}
-Constraint {found = Int, expected = Int}
 Constraint {found = Maybe_0[Int], expected = Maybe_0[Counter 11]}
-Constraint {found = Int, expected = Int}
 Constraint {found = Int, expected = Counter 11}
 Constraint {found = Counter 11, expected = Int}
+Constraint {found = Int, expected = Int}
+Constraint {found = Maybe_0[Int], expected = Any}
 Constraint {found = String, expected = String}
 Constraint {found = Unit, expected = Any}
 Constraint {found = Boolean, expected = Boolean}
@@ -223,15 +181,19 @@ Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 13}
+Constraint {found = Int, expected = Counter 12}
 Constraint {found = Int, expected = Int}
 Constraint {found = Int, expected = Int}
 Constraint {found = Int, expected = Int}
-Constraint {found = Int, expected = Counter 13}
+Constraint {found = Int, expected = Counter 12}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
 Constraint {found = Boolean, expected = Boolean}
-Constraint {found = Boolean, expected = Boolean}
+Constraint {found = Boolean, expected = Any}
+Constraint {found = String, expected = String}
+Constraint {found = Unit, expected = Any}
+Constraint {found = List_2[Boolean], expected = List_2[Counter 13]}
+Constraint {found = Maybe_0[Pair_3[Counter 13, List_2[Counter 13]]], expected = Any}
 Constraint {found = String, expected = String}
 Constraint {found = Unit, expected = Unit}
 --------
