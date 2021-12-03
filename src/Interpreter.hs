@@ -10,7 +10,7 @@ import           SymbolTable
 import           System.IO
 import           Text.Read                      ( readMaybe )
 import           Types
-import           Utils                          ( evalError )
+import           Utils
 
 type Env = Map.Map Idx (Expr Idx)
 
@@ -28,7 +28,7 @@ interpret ex ev st ft = eval ex ev
     eval expr env = case expr of
         Variable idx -> case Map.lookup idx env of
             Just ex' -> pure ex'
-            Nothing  -> evalError $ "Unbounded variable" ++ nameIdx idx
+            Nothing  -> evalError $ "Unbounded variable " ++ nameIdx idx
         LitInt    n  -> pure $ LitInt n
         LitBool   b  -> pure $ LitBool b
         LitString s  -> pure $ LitString s
@@ -107,7 +107,7 @@ interpret ex ev st ft = eval ex ev
             case Map.lookup ty (constructors st) >>= Map.lookup idx of
                 Just (ConstrSig _ params _) ->
                     ConstrCall idx p <$> mapM (`eval` env) exs
-                _ -> evalError $ "Unknown function " ++ nameIdx idx
+                _ -> evalError $ "Unknown constructor " ++ nameIdx idx
         Let pd ex' ex3 -> do
             bd <- eval ex' env
             eval ex3 $ Map.insert (paramName pd) bd env
@@ -118,7 +118,7 @@ interpret ex ev st ft = eval ex ev
         Bottom ex'    -> do
             LitString s <- eval ex' env
             evalError s
-        _ -> evalError ""
+        _ -> evalError "Unreachable"
       where
         handleCases [] _ _ = evalError "Match case not exclusive"
         handleCases (MatchCase pat body : msc) env ex =
@@ -140,9 +140,8 @@ evalPrimitive :: String -> [Expr Idx] -> IO (Expr Idx)
 evalPrimitive "print"    [LitString s] = putStr s *> hFlush stdout $> LitUnit
 evalPrimitive "println"  [LitString s] = putStrLn s *> hFlush stdout $> LitUnit
 evalPrimitive "readLine" []            = LitString <$> getLine
-evalPrimitive "parseInt" [LitString s] = case readMaybe s :: Maybe Integer of
+evalPrimitive "toInt"    [LitString s] = case readMaybe s :: Maybe Integer of
     Nothing -> evalError $ "Cannot parse Int: " ++ s
     Just i  -> pure $ LitInt i
-evalPrimitive "toString" [s] =
-    pure $ LitString . filter (/= '"') . show $ nameIdx <$> s
-evalPrimitive _ _ = evalError ""
+evalPrimitive "toString" [s] = pure $ LitString $ removeQuot s
+evalPrimitive f          _   = evalError $ "Unknown primitive function " ++ f

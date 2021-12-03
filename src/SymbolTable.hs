@@ -77,11 +77,11 @@ data Primitive a = Primitive
 primitives :: Map.Map String (Signature a)
 primitives = Map.fromList $ map
     (\x -> (pName x, primToSig x))
-    [ Primitive "print"       [StringType] UnitType
-    , Primitive "println"     [StringType] UnitType
-    , Primitive "readLine"    []           StringType
-    , Primitive "parseInt"    [StringType] IntType
-    , Primitive "toString"    [AnyType]    StringType
+    [ Primitive "print"    [StringType] UnitType
+    , Primitive "println"  [StringType] UnitType
+    , Primitive "readLine" []           StringType
+    , Primitive "toInt"    [StringType] IntType
+    , Primitive "toString" [AnyType]    StringType
     ]
 
 -- | convert primitives to signatures

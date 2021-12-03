@@ -14,6 +14,7 @@ import           SymbolTable                    ( Signature(..)
                                                 , SymbolTable(..)
                                                 )
 import           Types
+import           Utils                          ( removeQuot )
 
 -- | type constraint
 data Constraint = Constraint
@@ -209,7 +210,7 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
             put $ i + length targs
             let tp  = zip (map (\(TypeParam x) -> x) targs) [i ..]
             -- map type variables to counted
-            let tap = map (\(_, i)-> Counted i) tp
+            let tap = map (\(_, i) -> Counted i) tp
             let ps  = typeApp tp params
             (cs, es) <- unzip <$> zipWithM handlePat pats ps
             pure
@@ -269,7 +270,7 @@ solveConstraint (c@(Constraint f e) : cs) = case (f, e) of
     (Counted i, Counted j) | i == j -> solveConstraint cs
     (Counted i, Counted j)          -> solveConstraint $ subst cs j (Counted i)
 
-    _ -> Left $ "Cannot unify type " ++ show f ++ " and " ++ show e
+    _ -> Left $ "Cannot unify type " ++ removeQuot f ++ " and " ++ removeQuot e
 
 -- | check type and returned the solved constraint
 checkType :: Program Idx -> SymbolTable -> Either String ()

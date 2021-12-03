@@ -1,7 +1,12 @@
 module Main where
 
+import           Control.Monad                  ( when )
+import           Data.Maybe                     ( isJust )
+import qualified Data.Text.IO                  as TIO
 import           Options.Applicative
 import           Pipe
+import           System.Exit                    ( exitFailure )
+import           System.IO
 import           Utils                          ( evalError )
 
 data Mode = Interpret | Js deriving Show
@@ -22,12 +27,23 @@ main = entry =<< execParser opts
             ++ "It can be directly interpreted or compiled to JavaScript"
     hd = "amy3 - The amy3 language interpreter/compiler"
 
-
 entry :: Opts -> IO ()
-entry (Opts [] _ _ _) = evalError "Not input file!"
-entry (Opts fs m _ _) = case m of
-    Interpret -> interpretMode fs
-    Js        -> error "not implemented"
+entry (Opts [] _ _ _) =
+    hPutStrLn stderr "amy3: error: no input files" *> exitFailure
+entry (Opts fs m op ot) = case m of
+    Interpret -> do
+        when op
+            $ putStrLn
+                  "[Warning] Optimization is not supported in interpret mode, ignoring..."
+        when (isJust ot)
+            $ putStrLn
+                  "[Warning] No output will be generated when interpreted, ignoring..."
+        interpretMode fs
+    Js -> do
+        prog <- codeGenMode op fs
+        case ot of
+            Nothing -> TIO.writeFile "out.js" prog
+            Just f  -> TIO.writeFile f prog
 
 cli :: Parser Opts
 cli =
@@ -42,7 +58,5 @@ cli =
                 $  long "output"
                 <> short 'o'
                 <> metavar "FILE"
-                <> value "out.js"
                 <> help "Write output to FILE"
                 )
-

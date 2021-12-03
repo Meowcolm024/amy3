@@ -23,7 +23,7 @@ $ stack build
 To show help:
 
 ``` sh
-$ run -- -h                           
+$ stack run -- -h                           
 amy3 - The amy3 language interpreter/compiler
 
 Usage: amy3-exe [TARGET...] [-i|--interpret] [-O|--optimize] [-o|--output FILE]
@@ -41,12 +41,25 @@ Run an example:
 
 ``` sh
 $ stack run -- -i examples/Hi.scala examples/Lib.scala
-False
-True
-Maybe.Just(True)
-Input a number ('x' to finish): 
+false
+true
+Maybe.Just(true)
+Input a number ('x' to finish):  
 ```
 
-## Features
+## Difference
 
-OwO
+1. removed *modules*
+2. removed *abstract class* and *case class* style, ADT, in favor of the *enum* syntax
+3. need to supply a main function using `@main`
+4. added parametric types for ADT and functions
+
+## Primitives
+
+``` scala
+print(s: String): Unit
+println(s: String): Unit
+readLine(): String
+toInt(i: String): Int
+toString(s: Any): String
+```

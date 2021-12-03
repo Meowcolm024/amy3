@@ -2,7 +2,6 @@
 module Types where
 
 import           Data.List                      ( intercalate )
-import           GHC.OldList                    ( intercalate )
 
 -- a program is a collection of definitions
 type Program a = [Definition a]
@@ -145,8 +144,8 @@ instance Show a => Show (Expr a) where
     show e = case e of
         Variable  a      -> show a
         LitInt    n      -> show n
-        LitBool   b      -> show b
-        LitString s      -> show s
+        LitBool   b      -> if b then "true" else "false"
+        LitString s      -> "'" ++ s ++ "'"
         LitUnit          -> "()"
         Plus      ex ex' -> "(" ++ show ex ++ ") + (" ++ show ex' ++ ")"
         Minus     ex ex' -> "(" ++ show ex ++ ") - (" ++ show ex' ++ ")"

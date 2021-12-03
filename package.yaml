@@ -2,9 +2,9 @@ name:                amy3
 version:             0.1.0.0
 github:              "meowcolm024/amy3"
 license:             BSD3
-author:              "Meowcolm024"
+author:              "Malcolm Law"
 maintainer:          "luoyicong1026@live.com"
-copyright:           "2021 Meowcolm024"
+copyright:           "2021 Malcolm Law"
 
 extra-source-files:
 - README.md
@@ -27,6 +27,7 @@ dependencies:
 - mtl >= 2.2 && < 3
 - optparse-applicative >= 0.16.1 && < 0.17
 - text >= 1.2.4 && < 1.3
+- interpolatedstring-perl6 >= 1.0 && < 1.1
 
 library:
   source-dirs: src
