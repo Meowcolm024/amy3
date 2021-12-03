@@ -25,11 +25,12 @@ function toString(x) {
         return "()"
     }
 }
+function error(x) {throw new Error(x)}
 
 /* Primitive end */
 
 
 function what(i){return ((i)<=(0)) ? ({"type": "List","constr": "Nil"}) : ({"type": "List","constr": "Cons","_0":i,"_1":what((i)-(1))})}
-function haha(){let l1 = what(5);return println(toString(l1))}
+function haha(){let l1 = what(5);println(toString(l1));println(toString((!(true))||(false)));error("omg!")}
 
 haha()

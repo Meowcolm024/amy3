@@ -137,7 +137,7 @@ cgExpr st ft params = cg (newPack mkEnv)
                 <> ")+("
                 <> cg (mvRet p) ex'
                 <> ")"
-        Seq ex ex' -> cgRet p <> cg (mvRet p) ex <> ";" <> cg (mvRet p) ex'
+        Seq ex ex' -> cg (mvRet p) ex <> ";" <> cg p ex'
         Not ex     -> cgRet p <> "!(" <> cg (mvRet p) ex <> ")"
         Neg ex     -> cgRet p <> "-(" <> cg (mvRet p) ex <> ")"
         Call idx exs ->
@@ -169,7 +169,7 @@ cgExpr st ft params = cg (newPack mkEnv)
                 <> cg (mvRet p) ex3
                 <> ")"
         Match ex mcs -> "let _match_ =" <> cg (mvRet p) ex <> ";"
-        Bottom ex    -> "(throw " <> cg p ex <> ")"
+        Bottom ex    -> "error(" <> cg (mvRet p) ex <> ")"
         _            -> error "???"
 
     mkConstr :: Idx -> Pack -> Signature Idx -> [Expr Idx] -> T.Text

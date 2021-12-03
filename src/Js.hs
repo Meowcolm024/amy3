@@ -10,7 +10,7 @@ import           Data.Text                      ( Text )
 import           Text.InterpolatedString.Perl6  ( q )
 
 preJs :: Text
-preJs = T.unlines [header, jsprint, jsprintln, jsToString, ending]
+preJs = T.unlines [header, jsprint, jsprintln, jsToString, jsError, ending]
 
 header :: Text
 header = "/* Primitive start */\n"
@@ -23,6 +23,9 @@ jsprint = "function print(x) { process.stdout.write(x) }"
 
 jsprintln :: Text
 jsprintln = "function println(x) { process.stdout.write(x + \"\\n\") }"
+
+jsError :: Text
+jsError = "function error(x) {throw new Error(x)}"
 
 jsToString :: Text
 jsToString = [q|function toString(x) {
