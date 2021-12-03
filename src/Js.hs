@@ -10,7 +10,16 @@ import           Data.Text                      ( Text )
 import           Text.InterpolatedString.Perl6  ( q )
 
 preJs :: Text
-preJs = T.unlines [header, jsprint, jsprintln, jsToString, jsError, ending]
+preJs = T.unlines
+    [ header
+    , jsprint
+    , jsprintln
+    , jsToInt
+    , jsReadLine
+    , jsToString
+    , jsError
+    , ending
+    ]
 
 header :: Text
 header = "/* Primitive start */\n"
@@ -26,6 +35,31 @@ jsprintln = "function println(x) { process.stdout.write(x + \"\\n\") }"
 
 jsError :: Text
 jsError = "function error(x) {throw new Error(x)}"
+
+jsToInt :: Text
+jsToInt = [q|function toInt(x) {
+    var res = parseInt(x);
+      if (isNaN(res)) {
+        error("Error: Could not parse int");
+      } else {
+        return res;
+      }
+}|]
+
+jsReadLine :: Text
+jsReadLine = [q|const deasync = require('deasync');
+const rl = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+let inputLines = [];
+rl.on('line', function(answer) {
+  inputLines.push(answer);
+});
+function readLine() {
+  deasync.loopWhile(function(){return inputLines.length <= 0;});
+  return inputLines.shift();
+}|]
 
 jsToString :: Text
 jsToString = [q|function toString(x) {

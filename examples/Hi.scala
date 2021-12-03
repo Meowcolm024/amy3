@@ -13,7 +13,7 @@ def getList(): List[Int] = {
     if (x == "x") {
         List.Nil()
     } else {
-        val y: Int = parseInt(x);
+        val y: Int = toInt(x);
         List.Cons(y, getList())
     }
 }

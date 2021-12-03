@@ -140,7 +140,7 @@ evalPrimitive :: String -> [Expr Idx] -> IO (Expr Idx)
 evalPrimitive "print"    [LitString s] = putStr s *> hFlush stdout $> LitUnit
 evalPrimitive "println"  [LitString s] = putStrLn s *> hFlush stdout $> LitUnit
 evalPrimitive "readLine" []            = LitString <$> getLine
-evalPrimitive "parseInt" [LitString s] = case readMaybe s :: Maybe Integer of
+evalPrimitive "toInt"    [LitString s] = case readMaybe s :: Maybe Integer of
     Nothing -> evalError $ "Cannot parse Int: " ++ s
     Just i  -> pure $ LitInt i
 evalPrimitive "toString" [s] = pure $ LitString $ removeQuot s

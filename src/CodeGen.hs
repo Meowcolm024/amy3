@@ -55,7 +55,7 @@ cgExpr st ft params = cg (newPack mkEnv)
     cgRet p = if insRet p then "return " else ""
     cg :: Pack -> Expr Idx -> T.Text
     cg p expr = case expr of
-        Variable  idx -> cgRet p <> fromJust (Map.lookup idx (env p))
+        Variable  idx -> cgRet p <> T.pack (nameIdx idx)
         LitInt    n   -> cgRet p <> T.pack (show n)
         LitBool   b   -> cgRet p <> if b then "true" else "false"
         LitString s   -> cgRet p <> T.pack (show s)
@@ -156,21 +156,25 @@ cgExpr st ft params = cg (newPack mkEnv)
                 <> " = "
                 <> cg (mvRet p) ex
                 <> ";"
-                <> cg
-                       (p { env = Map.insert n (T.pack $ nameIdx n) (env p) })
-                       ex'
+                <> cg p ex'
         IfElse ex ex' ex3 ->
             cgRet p
-                <> "("
+                <> "(() => {"
+                <> cg p { insRet = True } ex
+                <> "})() ? (() => {"
+                <> cg p { insRet = True } ex'
+                <> "})() : (() => {"
+                <> cg p { insRet = True } ex3
+                <> "})()"
+        Match ex mcs ->
+            cgRet p
+                <> "((__match__) => {"
+                <> handleCases mcs (p { insRet = True }) "__match__"
+                <> "})("
                 <> cg (mvRet p) ex
-                <> ") ? ("
-                <> cg (mvRet p) ex'
-                <> ") : ("
-                <> cg (mvRet p) ex3
                 <> ")"
-        Match ex mcs -> "let _match_ =" <> cg (mvRet p) ex <> ";"
-        Bottom ex    -> "error(" <> cg (mvRet p) ex <> ")"
-        _            -> error "???"
+        Bottom ex -> "error(" <> cg (mvRet p) ex <> ")"
+        _         -> error "???"
 
     mkConstr :: Idx -> Pack -> Signature Idx -> [Expr Idx] -> T.Text
     mkConstr name p ~(ConstrSig _ params (EnumType ty _)) exs =
@@ -183,3 +187,38 @@ cgExpr st ft params = cg (newPack mkEnv)
         ty'   = "\"type\": \"" <> T.pack (nameIdx ty) <> "\""
         name' = "\"constr\": \"" <> T.pack (nameIdx name) <> "\""
         ps1 i v = "\"_" <> T.pack (show i) <> "\":" <> v
+
+    handleCases [] _ _ = "error(\"Match case not exclusive\")"
+    handleCases (MatchCase pat body : mcs) p expr =
+        gen (matchAndBind pat expr) (cg p body) <> handleCases mcs p expr
+      where
+        gen :: ([T.Text], [T.Text]) -> T.Text -> T.Text
+        gen (cnds, bnds) body =
+            T.concat (map (\c -> "if" <> c <> "{") cnds)
+                <> T.concat bnds
+                <> body
+                <> T.replicate (length cnds) "}"
+        matchAndBind :: Pattern Idx -> T.Text -> ([T.Text], [T.Text])
+        matchAndBind pat ex = case pat of
+            WildcardPattern -> (["(true)"], [])
+            IdPattern idx ->
+                ( ["(true)"]
+                , ["let " <> T.pack (nameIdx idx) <> "=" <> ex <> ";"]
+                )
+            LiteralPattern ex' ->
+                (["(" <> cg (mvRet p) ex' <> "==" <> ex <> ")"], [])
+            EnumPattern idx _ pats ->
+                let (cnds, bnds) = unzip $ zipWith
+                        (\p m -> matchAndBind p (ex <> "._" <> T.pack (show m)))
+                        pats
+                        [0 ..]
+                in
+                    ( [ "("
+                        <> ex
+                        <> ".constr==\""
+                        <> T.pack (nameIdx idx)
+                        <> "\")"
+                      ]
+                        <> concat cnds
+                    , concat bnds
+                    )

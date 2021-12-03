@@ -53,3 +53,13 @@ Input a number ('x' to finish):
 2. removed *abstract class* and *case class* style, ADT, in favor of the *enum* syntax
 3. need to supply a main function using `@main`
 4. added parametric types for ADT and functions
+
+## Primitives
+
+``` scala
+print(s: String): Unit
+println(s: String): Unit
+readLine(): String
+toInt(i: String): Int
+toString(s: Any): String
+```
