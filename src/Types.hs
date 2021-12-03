@@ -2,7 +2,6 @@
 module Types where
 
 import           Data.List                      ( intercalate )
-import           GHC.OldList                    ( intercalate )
 
 -- a program is a collection of definitions
 type Program a = [Definition a]
