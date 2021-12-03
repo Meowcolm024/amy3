@@ -1,18 +1,14 @@
-enum Maybe[A] {
-  case Nothing()
-  case Just(n: A)
+def matmat(i: Int): Int = {
+  i match {
+    case 1 => 1
+    case _ => 2
+  } match {
+    case 2 => 1
+    case _ => i
+  }
 }
 
-enum Either[A, B] {
-  case Left(l: A)
-  case Right(r: B)
-}
-
-enum List[A] {
-  case Nil()
-  case Cons(head: A, tail: List[A])
-}
-
-enum LenList[A] {
-  case LenList(len: Int, lst: List[A])
+@main
+def sim(): Unit = {
+  println(toString(matmat(2)))
 }
