@@ -1,13 +1,10 @@
-def omg(): Unit = {
+def fun(): Unit = {
     print("input something: ");
     val x: String = readLine();
-    val y: Int = 2 * parseInt(x);
-    println(toString(y*y));
-    if (parseInt(x) != 0) {
-        omg()
-    } else {
-        println("bye")
-    }
+    print("input one more: ");
+    val y: String = readLine();
+    val p: List[String] = List.Cons(x, List.Cons(y, List.Nil()));
+    println(head(p) ++ "\n" ++ toString(tail(p)))
 }
 
 def getList(): List[Int] = {
@@ -28,10 +25,10 @@ def hi(): Unit = {
     println(toString(a == b));
     println(toString("hello" != "hell0"));
     println(toString(Maybe.Just(true)));
-    // omg()
+    fun();
     val l : List[Int] = getList();
     println(toString(l));
-     println(toString(mergeSort(l)));
+    println(toString(mergeSort(l)));
     println("double length is " ++ toString(length(append(l,l))));
     println("sum is " ++ toString(sum(l)))
 }

@@ -27,6 +27,7 @@ library
   exposed-modules:
       CodeGen
       Interpreter
+      Js
       Lexer
       NameAnalysis
       Optimizer

@@ -2,6 +2,7 @@ module Main where
 
 import           Control.Monad                  ( when )
 import           Data.Maybe                     ( isJust )
+import qualified Data.Text.IO                  as TIO
 import           Options.Applicative
 import           Pipe
 import           System.Exit                    ( exitFailure )
@@ -34,10 +35,15 @@ entry (Opts fs m op ot) = case m of
         when op
             $ putStrLn
                   "[Warning] Optimization is not supported in interpret mode, ignoring..."
-        when (isJust ot) $ putStrLn
-            "[Warning] No output will be generated when interpreted, ignoring..."
+        when (isJust ot)
+            $ putStrLn
+                  "[Warning] No output will be generated when interpreted, ignoring..."
         interpretMode fs
-    Js -> error "not implemented"
+    Js -> do
+        prog <- codeGenMode op fs
+        case ot of
+            Nothing -> TIO.writeFile "out.js" prog
+            Just f  -> TIO.writeFile f prog
 
 cli :: Parser Opts
 cli =
