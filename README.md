@@ -18,6 +18,12 @@ Build using stack:
 $ stack build
 ```
 
+To run the generated JavaScript, you may also need to:
+
+``` sh
+$ npm i deasync
+```
+
 ## Usage
 
 To show help:
@@ -37,7 +43,7 @@ Available options:
   -h,--help                Show this help text
 ```
 
-Run an example:
+Interpret source file:
 
 ``` sh
 $ stack run -- -i examples/Hi.scala examples/Lib.scala
@@ -45,6 +51,16 @@ false
 true
 Maybe.Just(true)
 Input a number ('x' to finish):  
+```
+
+Compile and generate JS:
+
+``` sh
+$ stack run -- examples/What.scala --output=What.js
+$ node What.js 
+false
+8002000
+bye!
 ```
 
 ## Difference
