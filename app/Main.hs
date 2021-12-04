@@ -42,8 +42,11 @@ entry (Opts fs m op ot) = case m of
     Js -> do
         prog <- codeGenMode op fs
         case ot of
-            Nothing -> TIO.writeFile "out.js" prog
             Just f  -> TIO.writeFile f prog
+            Nothing -> do
+                putStrLn
+                    "[Warning] No output file indicated, writting to 'out.js'"
+                TIO.writeFile "out.js" prog
 
 cli :: Parser Opts
 cli =

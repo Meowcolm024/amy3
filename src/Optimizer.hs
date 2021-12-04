@@ -4,6 +4,7 @@ module Optimizer
 
 import           Types
 
+-- | optimization
 optimize :: Bool -> Expr a -> Expr a
 optimize True = constFold
 optimize False = id

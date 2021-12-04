@@ -185,10 +185,10 @@ cgExpr st ft params = cg (newPack mkEnv)
                    ([ty', name'] ++ zipWith ps1 [0 ..] (map (cg p) exs))
             <> "}"
       where
-        ty'   = "\"type\": \"" <> T.pack (nameIdx ty) <> "\""
-        name' = "\"constr\": \"" <> T.pack (nameIdx name) <> "\""
+        ty'   = "\"type\":\"" <> T.pack (nameIdx ty) <> "\""
+        name' = "\"constr\":\"" <> T.pack (nameIdx name) <> "\""
         ps1 i v = "\"_" <> T.pack (show i) <> "\":" <> v
-
+    handleCases :: [MatchCase Idx] -> Pack -> T.Text -> T.Text
     handleCases [] _ _ = "error(\"Match case not exclusive\")"
     handleCases (MatchCase pat body : mcs) p expr =
         gen (matchAndBind pat expr) (cg p body) <> handleCases mcs p expr

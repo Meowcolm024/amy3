@@ -47,7 +47,7 @@ jsToInt = [q|function toInt(x) {
 }|]
 
 jsReadLine :: Text
-jsReadLine = [q|const deasync = require('deasync');
+jsReadLine = [q|import { loopWhile } from 'deasync';
 const rl = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
@@ -57,7 +57,7 @@ rl.on('line', function(answer) {
   inputLines.push(answer);
 });
 function readLine() {
-  deasync.loopWhile(function(){return inputLines.length <= 0;});
+  loopWhile(function(){return inputLines.length <= 0;});
   return inputLines.shift();
 }|]
 
