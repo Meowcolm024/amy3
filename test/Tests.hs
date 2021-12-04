@@ -57,13 +57,19 @@ testGen = do
         it "hello test" $ do
             pg <- readFile "test/resources/Hello.scala"
             writeFile "test/resources/Hello.js" (runCodeGen pg)
-            x <- readProcess "node" ["test/resources/Hello.js"] []
+            (_, x, err) <- readProcessWithExitCode
+                "node"
+                ["test/resources/Hello.js"]
+                []
+            err `shouldBe` ""
             x `shouldBe` "Hello World\n"
         it "io test" $ do
             pg <- readFile "test/resources/Read.scala"
             writeFile "test/resources/Read.js" (runCodeGen pg)
             let run = readProcessWithExitCode "node" ["test/resources/Read.js"]
-            (_, out1, _) <- run "1\n2"
+            (_, out1, err1) <- run "1\n2"
+            err1 `shouldBe` ""
             out1 `shouldBe` "not zero\nbye\n"
-            (_, out2, _) <- run "1\n-1"
+            (_, out2, err2) <- run "1\n-1"
+            err2 `shouldBe` ""
             out2 `shouldBe` "is zero\nbye\n"
