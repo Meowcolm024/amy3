@@ -12,6 +12,19 @@ enum Pair[A, B] {
   case Pair(x: A, y: B)
 }
 
+def getOr[A](m: Maybe[A], o: A): A = {
+  m match {
+    case Maybe.Just(x) => x
+    case Maybe.Nothing() => o
+  }
+}
+
+def swap[A, B](t: Pair[A, B]): Pair[B, A] = {
+  t match {
+    case Pair.Pair(x, y) => Pair.Pair(y, x)
+  }
+}
+
 def head[A](l: List[A]): A = {
   l match {
     case List.Nil() => error("Empty list")
