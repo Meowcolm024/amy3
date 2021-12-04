@@ -97,3 +97,10 @@ def mergeSort(l: List[Int]): List[Int] = {
     }
   }
 }
+
+def flatten[A](l: List[List[A]]): List[A] = {
+  l match {
+    case List.Nil() => List.Nil()
+    case List.Cons(x, xs) => append(x, flatten(xs))
+  }
+}

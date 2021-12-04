@@ -54,3 +54,4 @@ tests:
     dependencies:
     - amy3
     - hspec
+    - process 

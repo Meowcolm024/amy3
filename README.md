@@ -54,12 +54,23 @@ Input a number ('x' to finish):
 3. need to supply a main function using `@main`
 4. added parametric types for ADT and functions
 
+## Known issues
+
+The generated JavaScript program is not stable, it may exit will with `max stack size reached`, which is quite strange. This is probably realted to the weired readline...
+
 ## Primitives
 
+The following functions are primitive function:
+
 ``` scala
+// print string
 print(s: String): Unit
+// print string with new line
 println(s: String): Unit
+// read string from console
 readLine(): String
+// parse string to int
 toInt(i: String): Int
+// convert any type to string
 toString(s: Any): String
 ```

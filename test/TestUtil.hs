@@ -1,7 +1,9 @@
 module TestUtil where
 
+import           CodeGen                        ( codeGen )
 import           Data.Bifunctor                 ( first )
 import qualified Data.Map                      as Map
+import           Data.Text                      ( unpack )
 import           Interpreter
 import           NameAnalysis                   ( analyze )
 import           Parser                         ( parseProgram )
@@ -9,7 +11,7 @@ import           SymbolTable
 import           System.IO
 import           TypeChecker
 import           Types
-import Utils (removeQuot)
+import           Utils                          ( removeQuot )
 
 loadProgram :: String -> Either String (Program Idx, SymbolTable, FuncTable)
 loadProgram p = do
@@ -51,6 +53,12 @@ runInterpret fun f = do
             Left  s  -> pure $ Left s
             Right pg -> Right <$> ri pg st ft
     where ri ~(FunDef _ _ _ _ body) = interpret body Map.empty
+
+runCodeGen :: String -> String
+runCodeGen file = do
+    case loadProgram file of
+        Left  s             -> s
+        Right (pgs, st, ft) -> unpack $ codeGen False pgs st ft
 
 printExpr :: Expr Idx -> String
 printExpr = removeQuot

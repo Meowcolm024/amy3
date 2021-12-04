@@ -1,6 +1,7 @@
 module Tests where
 
 import           Data.Either                    ( isLeft )
+import           System.Process
 import           Test.Hspec
 import           TestHelper
 import           TestUtil
@@ -19,7 +20,7 @@ testMath = hspec $ describe "test math" $ do
 
 testTypeErr :: IO ()
 testTypeErr = hspec $ describe "test type errpr" $ do
-    let file = readFile "test/resources/TypeErr.scala"
+    let file  = readFile "test/resources/TypeErr.scala"
     let file2 = readFile "test/resources/TypeErr2.scala"
     it "type not check" $ do
         r <- loadProgram <$> file
@@ -39,10 +40,36 @@ testList = hspec $ describe "test list" $ do
     it "and list" $ do
         result <- run "testAnd"
         result `shouldBe` Right (LitBool False)
+    let
+        out =
+            "List.Cons(0, List.Cons(1, List.Cons(2, List.Cons(3,"
+                ++ " List.Cons(4, List.Cons(6, List.Cons(7, List.Cons(9, List.Nil()))))))))"
     it "sort test" $ do
         result <- run "testSort"
-        let
-            out =
-                "List.Cons(0, List.Cons(1, List.Cons(2, List.Cons(3,"
-                    ++ " List.Cons(4, List.Cons(6, List.Cons(7, List.Cons(9, List.Nil()))))))))"
         printExpr <$> result `shouldBe` Right out
+    it "flatten test" $ do
+        result <- run "testFlat"
+        printExpr <$> result `shouldBe` Right out
+
+testGen :: IO ()
+testGen = do
+    hspec $ describe "test gen" $ do
+        it "hello test" $ do
+            pg <- readFile "test/resources/Hello.scala"
+            writeFile "test/resources/Hello.js" (runCodeGen pg)
+            (_, x, err) <- readProcessWithExitCode
+                "node"
+                ["test/resources/Hello.js"]
+                []
+            err `shouldBe` ""
+            x `shouldBe` "Hello World\n"
+        it "io test" $ do
+            pg <- readFile "test/resources/Read.scala"
+            writeFile "test/resources/Read.js" (runCodeGen pg)
+            let run = readProcessWithExitCode "node" ["test/resources/Read.js"]
+            (_, out1, err1) <- run "1\n2"
+            err1 `shouldBe` ""
+            out1 `shouldBe` "not zero\nbye\n"
+            (_, out2, err2) <- run "1\n-1"
+            err2 `shouldBe` ""
+            out2 `shouldBe` "is zero\nbye\n"

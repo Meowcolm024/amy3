@@ -20,6 +20,11 @@ jobs:
         enable-stack: true
         stack-version: 'latest'
     
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16.X
+    
     - name: Cache
       uses: actions/cache@v1
       env:
@@ -36,6 +41,7 @@ jobs:
       run: |
         cabal update
         cabal build --only-dependencies --enable-tests --enable-benchmarks
+        npm i deasync
     - name: Build
       run: cabal build --enable-tests --enable-benchmarks all
     - name: Run tests

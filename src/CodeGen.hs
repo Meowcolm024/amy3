@@ -7,6 +7,7 @@ import qualified Data.Map                      as Map
 import           Data.Maybe                     ( fromJust )
 import qualified Data.Text                     as T
 import           Js                             ( preJs )
+import           Optimizer                      ( optimize )
 import           SymbolTable
 import           Types
 import           Utils                          ( isMainDef )
@@ -41,7 +42,7 @@ genDef opt st ft (FunDef name _ params _ body) =
                ","
                (map (\(ParamDef n _) -> T.pack $ nameIdx n) params)
         <> "){"
-        <> cgExpr st ft params body
+        <> cgExpr st ft params (optimize opt body)
         <> "}"
 genDef _ _ _ _ = ""
 
@@ -184,10 +185,10 @@ cgExpr st ft params = cg (newPack mkEnv)
                    ([ty', name'] ++ zipWith ps1 [0 ..] (map (cg p) exs))
             <> "}"
       where
-        ty'   = "\"type\": \"" <> T.pack (nameIdx ty) <> "\""
-        name' = "\"constr\": \"" <> T.pack (nameIdx name) <> "\""
+        ty'   = "\"type\":\"" <> T.pack (nameIdx ty) <> "\""
+        name' = "\"constr\":\"" <> T.pack (nameIdx name) <> "\""
         ps1 i v = "\"_" <> T.pack (show i) <> "\":" <> v
-
+    handleCases :: [MatchCase Idx] -> Pack -> T.Text -> T.Text
     handleCases [] _ _ = "error(\"Match case not exclusive\")"
     handleCases (MatchCase pat body : mcs) p expr =
         gen (matchAndBind pat expr) (cg p body) <> handleCases mcs p expr

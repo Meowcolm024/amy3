@@ -5,3 +5,4 @@ main = do
     testMath
     testTypeErr
     testList
+    testGen

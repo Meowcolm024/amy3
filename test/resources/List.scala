@@ -23,3 +23,13 @@ def testSort(): List[Int] = {
     List.Cons(0, List.Cons(9, List.Cons(2, List.Cons(7, List.Cons(1, List.Nil()))))))));
   mergeSort(xs)
 }
+
+def testFlat(): List[Int] = {
+  val xs: List[List[Int]] = 
+    List.Cons(
+      List.Cons(0, List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())))),
+      List.Cons(
+        List.Cons(4, List.Cons(6, List.Cons(7, List.Cons(9, List.Nil())))), 
+        List.Nil()));
+  flatten(xs)
+}
