@@ -1,10 +1,15 @@
+enum Color {
+  case Red()
+  case Blue()
+}
+
+enum ColorList[A] {
+  case ColorList(c: List[Color])
+}
+
 @main
 def sim(): Unit = {
-  val x: Int = 
-    if (true) {
-      4 * 6
-    } else {
-      (3 + 4) * 0
-    };
-  println(toString((1 + 1) > x || true))
+  val x = List.Cons("haha",List.Cons("hahahaha", List.Nil()));
+  val y = List.Cons(Maybe.Just(2), List.Nil());
+  println(toString(getOr(head(y), 3)) ++ head(x))
 }

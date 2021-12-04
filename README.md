@@ -69,6 +69,7 @@ bye!
 2. removed *abstract class* and *case class* style, ADT, in favor of the *enum* syntax
 3. need to supply a main function using `@main`
 4. added parametric types for ADT and functions
+5. optional type signature for local bindings
 
 ## Known issues
 
