@@ -6,6 +6,7 @@ import qualified Data.Map                      as Map
 import           Data.Text                      ( unpack )
 import           Interpreter
 import           NameAnalysis                   ( analyze )
+import           Optimizer                      ( optimize )
 import           Parser                         ( parseProgram )
 import           SymbolTable
 import           System.IO
@@ -45,14 +46,14 @@ getTest _ []            = Left "Test function not found!"
 getTest name (f@(FunDef (Idx name' _) _ _ _ _) : rest) | name == name' = Right f
 getTest name (_ : rest) = getTest name rest
 
-runInterpret :: String -> String -> IO (Either String (Expr Idx))
-runInterpret fun f = do
+runInterpret :: Bool -> String -> String -> IO (Either String (Expr Idx))
+runInterpret opt fun f = do
     case loadProgram f of
         Left  s             -> pure $ Left s
         Right (pgs, st, ft) -> case getTest fun pgs of
             Left  s  -> pure $ Left s
             Right pg -> Right <$> ri pg st ft
-    where ri ~(FunDef _ _ _ _ body) = interpret body Map.empty
+    where ri ~(FunDef _ _ _ _ body) = interpret (optimize opt body) Map.empty
 
 runCodeGen :: String -> String
 runCodeGen file = do

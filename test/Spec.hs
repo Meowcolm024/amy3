@@ -6,3 +6,4 @@ main = do
     testTypeErr
     testList
     testGen
+    testOpt

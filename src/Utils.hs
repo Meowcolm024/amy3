@@ -17,3 +17,10 @@ evalError msg = hPutStrLn stderr ("[Error] " ++ msg) *> exitFailure
 
 removeQuot :: (Show (f String), Functor f) => f Idx -> String
 removeQuot expr = filter (/= '"') . show $ nameIdx <$> expr
+
+isLit :: Expr a -> Bool
+isLit (LitBool   _) = True
+isLit (LitInt    _) = True
+isLit (LitString _) = True
+isLit LitUnit       = True
+isLit _             = False

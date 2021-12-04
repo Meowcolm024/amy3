@@ -10,7 +10,7 @@ import           Types
 testMath :: IO ()
 testMath = hspec $ describe "test math" $ do
     let file = readFile "test/resources/Math.scala"
-    let run f = runInterpret f =<< file
+    let run f = runInterpret False f =<< file
     it "fib(10)" $ do
         result <- run "testFib"
         result `shouldBe` Right (LitInt (fib 10))
@@ -33,7 +33,7 @@ testList = hspec $ describe "test list" $ do
     let run f = do
             fl <- readFile "test/resources/List.scala"
             lb <- readFile "examples/Lib.scala"
-            runInterpret f (fl ++ lb)
+            runInterpret False f (fl ++ lb)
     it "sum list" $ do
         result <- run "testSum"
         result `shouldBe` Right (LitInt (sum [1 .. 4]))
@@ -73,3 +73,16 @@ testGen = do
             (_, out2, err2) <- run "1\n-1"
             err2 `shouldBe` ""
             out2 `shouldBe` "is zero\nbye\n"
+
+testOpt :: IO ()
+testOpt = hspec $ describe "test optimization" $ do
+    let file = readFile "test/resources/Opt1.scala"
+    let cmp f = do
+            result <- runInterpret False f =<< file
+            result' <- runInterpret True f =<< file
+            result `shouldBe` result'
+    it "test number" $ do
+        cmp "adds"
+        cmp "mix"
+    it "test bool" $ do
+        cmp "bools"
