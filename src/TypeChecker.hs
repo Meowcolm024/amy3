@@ -159,10 +159,17 @@ genConstraint ~(FunDef _ targs params ret expr) st = do
                     (ret : params)
             pcs <- zipWithM (\p q -> genCons p q env) exs ps
             pure $ concat pcs ++ [Constraint rt expected]
-        Let (ParamDef n t) bd ex -> do
-            b <- genCons bd t env
-            e <- genCons ex expected (Map.insert n t env)
-            pure $ b ++ e
+        Let (ParamDef n t) bd ex -> case t of
+            AnyType -> do
+                i <- get
+                put $ i + 1
+                b <- genCons bd (Counted i) env
+                e <- genCons ex expected (Map.insert n (Counted i) env)
+                pure $ b ++ e
+            _ -> do
+                b <- genCons bd t env
+                e <- genCons ex expected (Map.insert n t env)
+                pure $ b ++ e
         IfElse ex ex' ex3 -> do
             pr <- genCons ex BooleanType env
             i  <- get
