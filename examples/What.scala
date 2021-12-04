@@ -20,9 +20,10 @@ def sum(l: List[Int]): Int = {
 
 @main
 def haha(): Unit = {
-  val l1: List[Int] = what(5);
-  println(toString(l1));
+  val l1: List[Int] = what(4000);
+  // println(toString(l1));
   println(toString(!true || false));
   val s: Int = sum(l1);
-  println(toString(s))
+  println(toString(s));
+  error("bye!")
 }

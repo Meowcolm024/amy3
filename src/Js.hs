@@ -34,7 +34,7 @@ jsprintln :: Text
 jsprintln = "function println(x) { process.stdout.write(x + \"\\n\") }"
 
 jsError :: Text
-jsError = "function error(x) {throw new Error(x)}"
+jsError = "function error(x) { println(x); process.exit(1) }"
 
 jsToInt :: Text
 jsToInt = [q|function toInt(x) {

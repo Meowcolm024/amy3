@@ -7,6 +7,7 @@ import qualified Data.Map                      as Map
 import           Data.Maybe                     ( fromJust )
 import qualified Data.Text                     as T
 import           Js                             ( preJs )
+import           Optimizer                      ( optimize )
 import           SymbolTable
 import           Types
 import           Utils                          ( isMainDef )
@@ -41,7 +42,7 @@ genDef opt st ft (FunDef name _ params _ body) =
                ","
                (map (\(ParamDef n _) -> T.pack $ nameIdx n) params)
         <> "){"
-        <> cgExpr st ft params body
+        <> cgExpr st ft params (optimize opt body)
         <> "}"
 genDef _ _ _ _ = ""
 
