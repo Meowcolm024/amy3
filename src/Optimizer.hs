@@ -4,7 +4,7 @@ module Optimizer
 
 import qualified Data.Map                      as Map
 import           Types
-import           Utils
+import           Utils                          ( isLit )
 
 -- | env cotains only literals
 type Env = Map.Map Idx (Expr Idx)
@@ -54,7 +54,7 @@ foldExpr env expr = case expr of
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
         r             -> IfElse r (foldExpr env et) (foldExpr env ee)
-    Match ex mcs -> Match ex mcs    -- TODO
+    Match ex mcs -> Match (foldExpr env ex) (handleCases env mcs)
     Bottom ex    -> Bottom (foldExpr env ex)
   where
     setPlus lhs rhs = case (lhs, rhs) of
@@ -130,3 +130,9 @@ foldExpr env expr = case expr of
         Let bd b e -> Let bd b (handleSeq1 e cont)
         _          -> cont ex
 
+    -- TODO
+    handleCases env [] = []
+    handleCases env (MatchCase WildcardPattern body : _) =
+        [MatchCase WildcardPattern (foldExpr env body)]
+    handleCases env (MatchCase pat body : rest) =
+        MatchCase pat (foldExpr env body) : handleCases env rest
