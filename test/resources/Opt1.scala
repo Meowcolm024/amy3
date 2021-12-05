@@ -8,9 +8,9 @@ def ret(x: Int): Int = {
 }
 
 def mix(): Int = {
-    val p: Int = ret() * 10 / 5
-    val q: Int = ret(x) + adds()
-    p + ret() + q
+    val p: Int = ret(1) * 10 / 5;
+    val q: Int = ret(p) + adds();
+    p + ret(q) + q
 }
 
 def bools(): Boolean = {

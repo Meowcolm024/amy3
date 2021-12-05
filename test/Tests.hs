@@ -79,13 +79,19 @@ testGen = do
 
 testOpt :: IO ()
 testOpt = hspec $ describe "test optimization" $ do
-    let file = readFile "test/resources/Opt1.scala"
-    let cmp f = do
-            result <- runInterpret False f =<< file
+    let file1 = readFile "test/resources/Opt1.scala"
+    let cmp f file = do
+            result  <- runInterpret False f =<< file
             result' <- runInterpret True f =<< file
+            result `shouldSatisfy` isRight
+            result' `shouldSatisfy` isRight
             result `shouldBe` result'
     it "test number" $ do
-        cmp "adds"
-        cmp "mix"
+        cmp "adds" file1
+        cmp "mix"  file1
     it "test bool" $ do
-        cmp "bools"
+        cmp "bools" file1
+    let file2 = readFile "test/resources/Opt2.scala"
+    it "test Match" $ do
+        cmp "testLitMatch" file2
+        cmp "testADTMatch" file2
