@@ -1,6 +1,6 @@
 module Tests where
 
-import           Data.Either                    ( isLeft )
+import           Data.Either                    ( isRight )
 import           System.Process
 import           Test.Hspec
 import           TestHelper
@@ -24,9 +24,10 @@ testTypeErr = hspec $ describe "test type errpr" $ do
     let file2 = readFile "test/resources/TypeErr2.scala"
     it "type not check" $ do
         r <- loadProgram <$> file
-        r `shouldSatisfy` isLeft
+        r `shouldNotSatisfy` isRight
         r2 <- loadProgram <$> file2
-        r2 `shouldSatisfy` isLeft
+        print r2
+        r2 `shouldNotSatisfy` isRight
 
 testList :: IO ()
 testList = hspec $ describe "test list" $ do
