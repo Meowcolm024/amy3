@@ -89,3 +89,11 @@ testOpt = hspec $ describe "test optimization" $ do
         cmp "mix"
     it "test bool" $ do
         cmp "bools"
+    let file2 = readFile "test/resources/Opt2.scala"
+    let cmp2 f2 = do
+            result2 <- runInterpret False f2 =<< file2
+            result2' <- runInterpret True f2 =<< file2
+            result2 `shouldBe` result2'
+    it "test Match" $ do
+        cmp2 "testLitMatch"
+        cmp2 "testADTMatch"
