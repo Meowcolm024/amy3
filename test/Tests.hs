@@ -114,6 +114,9 @@ testOptGen = hspec $ describe "test opt gen" $ do
             x2 `shouldBe` x1
     let file1 = "test/resources/OptGen1"
     let file2 = "test/resources/OptGen2"
+    let file3 = "test/resources/OptGen3"
     it "test litfold js" $ do
         cmp file1 []
         cmp file2 []
+    it "test seq" $ do
+        cmp file3 "haha\ntql\nhello\n"

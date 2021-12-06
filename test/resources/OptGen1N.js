@@ -51,7 +51,7 @@ function error(x) { println(x); process.exit(1) }
 /* Primitive end */
 
 function omg(){return 1}
-function testLitFold(){let x = (() => {return (1)+((2)*(3))})();let y = (() => {return ("hello")+(" world")})();return ((_) => {return ((_) => {return x})(println((y)+("!")))})(println(toString((Math.floor(((x)*(233))/(2)))+(omg()))))}
+function testLitFold(){let x = (() => {return (1)+((2)*(3))})();let y = (() => {return ("hello")+(" world")})();return ((_) => {return ((_) => {let z = (() => {return (1)+(omg())})();return print(toString((Math.floor((z)/(z)))+(omg())))})(println((y)+("!")))})(println(toString((Math.floor(((x)*(233))/(2)))+(omg()))))}
 function test(){return testLitFold()}
 
 test()
