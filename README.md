@@ -70,7 +70,7 @@ bye!
 3. need to supply a main function using `@main`
 4. added parametric types for ADT and functions
 5. optional type signature for local bindings
-6. const folding optimization
+6. constant folding optimization and redundent branch elimination
 
 ## Known issues
 

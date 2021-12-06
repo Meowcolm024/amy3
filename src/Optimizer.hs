@@ -20,7 +20,7 @@ foldExpr :: Env -> Expr Idx -> Expr Idx
 foldExpr env expr = case expr of
     Variable a -> case Map.lookup a env of
         Nothing -> Variable a
-        Just ex -> ex
+        Just ex -> if isLit ex then ex else Variable a
     LitInt    n  -> LitInt n
     LitBool   b  -> LitBool b
     LitString s  -> LitString s
@@ -51,9 +51,9 @@ foldExpr env expr = case expr of
     Let pd@(ParamDef n _) ex ex' ->
         let r = foldExpr env ex
         in  if isLit r
-                then foldExpr (Map.insert n r env) ex'
+                then foldExpr (Map.insert n r env) ex'      -- inline local binding
                 else Let pd r (foldExpr env ex')
-    IfElse ex et ee -> case foldExpr env ex of
+    IfElse ex et ee -> case foldExpr env ex of              -- cut branches
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
         r             -> IfElse r (foldExpr env et) (foldExpr env ee)
