@@ -50,7 +50,7 @@ function error(x) { println(x); process.exit(1) }
 
 /* Primitive end */
 
-function read(){let x = readLine();let y = readLine();return (toInt(x))+(toInt(y))}
-function doit(){let r = read();let t = ((__match__) => {if(0==__match__){return println("is zero")}if(true){return println("not zero")}error("Match case not exclusive")})(r);error("bye")}
+function read(){let x = (() => {return readLine()})();let y = (() => {return readLine()})();return (toInt(x))+(toInt(y))}
+function doit(){let r = (() => {return read()})();let t = (() => {return ((__match__) => {if(0==__match__){return println("is zero")}if(true){return println("not zero")}error("Match case not exclusive")})(r)})();error("bye")}
 
 doit()

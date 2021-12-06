@@ -10,20 +10,16 @@ def getInt(x: Int): Int = {x}
 @main
 def test(): Unit = {
     val x: MyBase = (
-		MyBase.Sub0();
-		val y: MyBase = MyBase.Sub1(12); 
-		if(15-3 == 12){MyBase.Sub2(15, 16)} 
-		else {y}
-	);
+            MyBase.Sub0();
+            val y: MyBase = MyBase.Sub1(12); 
+            if(15-3 == 12){MyBase.Sub2(15, 16)} 
+            else {y}
+	    );
 	val y: MyBase = MyBase.Sub1(10);
-	println(toString(
-		(
-      MyBase.Sub1(); 
-      "Hello"++"World";
-      1
-    ) 
-		+ 
-		(
+	println(toString((
+		MyBase.Sub1(233); 
+      	"Hello"++"World";
+      	1)  +  (
       getInt(15); 
       if(!(!(12345;false) || getInt(0) == 2)) {getInt(15)} 
       else {12}; 
@@ -31,12 +27,12 @@ def test(): Unit = {
       tmp
     )
 	));
-	Sub3(y,y) match{
+	MyBase.Sub3(y,y) match{
 		case MyBase.Sub2(_, _) => println("Hello1\n")
-    case MyBase.Sub3(any, _) => any match{
-      case Sub2(_, _) => println("Hello2\n")
-      case _ => println("Hello3\n")
-    }
-		case _ => println("Hello4\n")
+    	case MyBase.Sub3(any, _) => any match {
+        case MyBase.Sub2(_, _) => println("Hello2\n")
+        case _ => println("Hello3\n")
+        }
+	    case _ => println("Hello4\n")
 	}
 }

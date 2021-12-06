@@ -50,8 +50,8 @@ function error(x) { println(x); process.exit(1) }
 
 /* Primitive end */
 
-function omg(){return 1}
-function testLitFold(){let x = (() => {return (1)+((2)*(3))})();let y = (() => {return ("hello")+(" world")})();return ((_) => {return ((_) => {return x})(println((y)+("!")))})(println(toString((Math.floor(((x)*(233))/(2)))+(omg()))))}
-function test(){return testLitFold()}
+
+function getInt(x){return x}
+function test(){let x = (() => {let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})();let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":10}})();return ((_) => {return ((__match__) => {if(__match__.constr=="Sub3"){if(true){if(true){let any=__match__._0;return ((__match__) => {if(true){return println("Hello3\n")}error("Match case not exclusive")})(any)}}}if(true){return println("Hello4\n")}error("Match case not exclusive")})({"type":"MyBase","constr":"Sub3","_0":y,"_1":y})})(println(toString(((_) => {return ((_) => {return ((_) => {return 3})(12)})(getInt(15))})("HelloWorld"))))}
 
 test()

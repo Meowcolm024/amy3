@@ -50,8 +50,8 @@ function error(x) { println(x); process.exit(1) }
 
 /* Primitive end */
 
-function omg(){return 1}
-function testLitFold(){let x = (() => {return (1)+((2)*(3))})();let y = (() => {return ("hello")+(" world")})();return ((_) => {return ((_) => {return x})(println((y)+("!")))})(println(toString((Math.floor(((x)*(233))/(2)))+(omg()))))}
-function test(){return testLitFold()}
+
+function getInt(x){return x}
+function test(){let x = (() => {return ((_) => {let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();return (() => {return ((15)-(3))==(12)})() ? (() => {return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})() : (() => {return y})()})({"type":"MyBase","constr":"Sub0"})})();let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":10}})();return ((_) => {return ((__match__) => {if(__match__.constr=="Sub2"){if(true){if(true){return println("Hello1\n")}}}if(__match__.constr=="Sub3"){if(true){if(true){let any=__match__._0;return ((__match__) => {if(__match__.constr=="Sub2"){if(true){if(true){return println("Hello2\n")}}}if(true){return println("Hello3\n")}error("Match case not exclusive")})(any)}}}if(true){return println("Hello4\n")}error("Match case not exclusive")})({"type":"MyBase","constr":"Sub3","_0":y,"_1":y})})(println(toString((((_) => {return ((_) => {return 1})(("Hello")+("World"))})({"type":"MyBase","constr":"Sub1","_0":233}))+(((_) => {return ((_) => {let tmp = (() => {return 2})();return tmp})((() => {return !((!(((_) => {return false})(12345)))||((getInt(0))==(2)))})() ? (() => {return getInt(15)})() : (() => {return 12})())})(getInt(15))))))}
 
 test()
