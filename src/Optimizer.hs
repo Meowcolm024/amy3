@@ -49,9 +49,10 @@ foldExpr env expr = case expr of
     Call a exs          -> Call a (map (foldExpr env) exs)
     ConstrCall a at exs -> ConstrCall a at (map (foldExpr env) exs)
     Let pd@(ParamDef n _) ex ex' ->
-        let r  = foldExpr env ex
-            e' = Map.insert n r env
-        in  if isLit r then foldExpr e' ex' else Let pd r (foldExpr e' ex')
+        let r = foldExpr env ex
+        in  if isLit r
+                then foldExpr (Map.insert n r env) ex'
+                else Let pd r (foldExpr env ex')
     IfElse ex et ee -> case foldExpr env ex of
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
