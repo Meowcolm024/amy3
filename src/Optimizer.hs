@@ -20,7 +20,7 @@ foldExpr :: Env -> Expr Idx -> Expr Idx
 foldExpr env expr = case expr of
     Variable a -> case Map.lookup a env of
         Nothing -> Variable a
-        Just ex -> ex
+        Just ex -> if isLit ex then ex else Variable a
     LitInt    n  -> LitInt n
     LitBool   b  -> LitBool b
     LitString s  -> LitString s
@@ -51,12 +51,12 @@ foldExpr env expr = case expr of
     Let pd@(ParamDef n _) ex ex' ->
         let r  = foldExpr env ex
             e' = Map.insert n r env
-        in  if isLit r then foldExpr e' ex' else Let pd r (foldExpr e' ex')
+        in  Let pd r (foldExpr e' ex')
     IfElse ex et ee -> case foldExpr env ex of
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
         r             -> IfElse r (foldExpr env et) (foldExpr env ee)
-    Match ex mcs -> handleMatch (foldExpr env ex) mcs
+    Match ex mcs -> handleMatch env (foldExpr env ex) mcs
     Bottom ex    -> Bottom (foldExpr env ex)
   where
     setPlus lhs rhs = case (lhs, rhs) of
@@ -168,6 +168,15 @@ foldExpr env expr = case expr of
         Let bd b e -> Let bd b (handleSeq1 e cont)
         _          -> cont ex
 
+    getExprValue env exp = case exp of
+        Variable nm                     -> case Map.lookup nm env of
+                                                Nothing -> exp
+                                                Just ex -> getExprValue env exp
+        ConstrCall nm tp args           -> ConstrCall nm tp (map (getExprValue env) args)
+        Let pd@(ParamDef n _) ex ex'    -> getExprValue (Map.insert n ex env) ex'
+        Seq _ nxt                       -> getExprValue env nxt
+        _                               -> exp
+
     handlePattern scrt pat@WildcardPattern = (2, pat, Map.empty)
     handlePattern scrt pat@(IdPattern id) = (2, pat, Map.singleton id scrt)
     handlePattern scrt pat@(LiteralPattern lit) = if isLit scrt
@@ -192,4 +201,4 @@ foldExpr env expr = case expr of
             | possib /= 0
             ]
 
-    handleMatch scrt cases = Match scrt (concatMap (handleCases scrt) cases)
+    handleMatch env scrt cases = Match scrt (concatMap (handleCases (getExprValue env scrt)) cases)
