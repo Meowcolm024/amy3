@@ -70,10 +70,11 @@ bye!
 3. need to supply a main function using `@main`
 4. added parametric types for ADT and functions
 5. optional type signature for local bindings
+6. const folding optimization
 
 ## Known issues
 
-The generated JavaScript program is not stable, it may exit will with `max stack size reached`, which is quite strange. This is probably realted to the weired readline...
+The generated JavaScript program is not stable, it may exit will with `max stack size reached`, which is quite strange. This is probably related to the weired readline...
 
 ## Primitives
 

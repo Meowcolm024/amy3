@@ -92,16 +92,15 @@ testOpt = hspec $ describe "test optimization" $ do
     it "test bool" $ do
         cmp "bools" file1
     let file2 = readFile "test/resources/Opt2.scala"
-    it "test Match" $ do
+    it "test match" $ do
         cmp "testLitMatch" file2
         cmp "testADTMatch" file2
 
 testOptGen :: IO ()
-testOptGen = hspec $ describe "test optimization" $ do
-    let file1 = "test/resources/OptGen1"
+testOptGen = hspec $ describe "test opt gernerated" $ do
     let
         cmp file input = do
-            pg <- readFile (file ++ ".scala")
+            pg <- readFile $ file ++ ".scala"
             writeFile (file ++ "N.js") (runCodeGen False pg)
             writeFile (file ++ "O.js") (runCodeGen True pg)
             (_, x1, err1) <- readProcessWithExitCode "node"
@@ -113,5 +112,6 @@ testOptGen = hspec $ describe "test optimization" $ do
             err1 `shouldBe` ""
             err2 `shouldBe` ""
             x2 `shouldBe` x1
-    it "test litfold" $ do
+    let file1 = "test/resources/OptGen1"
+    it "test litfold js" $ do
         cmp file1 []
