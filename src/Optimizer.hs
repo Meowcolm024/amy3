@@ -2,6 +2,7 @@ module Optimizer
     ( optimize
     ) where
 
+import           Data.Foldable                  ( Foldable(foldr') )
 import qualified Data.Map                      as Map
 import           Types
 import           Utils                          ( isLit )
@@ -19,7 +20,7 @@ foldExpr :: Env -> Expr Idx -> Expr Idx
 foldExpr env expr = case expr of
     Variable a -> case Map.lookup a env of
         Nothing -> Variable a
-        Just ex -> ex
+        Just ex -> if isLit ex then ex else Variable a
     LitInt    n  -> LitInt n
     LitBool   b  -> LitBool b
     LitString s  -> LitString s
@@ -42,19 +43,21 @@ foldExpr env expr = case expr of
     Or     ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setOr
     Equals ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setEq
     Concat ex ex' -> handleSeq (foldExpr env ex) (foldExpr env ex') setConcat
-    Seq    ex ex'       -> setSequence ex ex'
+    Seq    ex ex'       -> setSequence' env $ setSequence ex ex'
     Not ex              -> handleSeq1 (foldExpr env ex) setNot
     Neg ex              -> handleSeq1 (foldExpr env ex) setNeg
     Call a exs          -> Call a (map (foldExpr env) exs)
     ConstrCall a at exs -> ConstrCall a at (map (foldExpr env) exs)
     Let pd@(ParamDef n _) ex ex' ->
         let r = foldExpr env ex
-        in  if isLit r then foldExpr (Map.insert n r env) ex' else Let pd r ex'
-    IfElse ex et ee -> case foldExpr env ex of
+        in  if isLit r
+                then foldExpr (Map.insert n r env) ex'      -- inline local binding
+                else Let pd r (foldExpr env ex')
+    IfElse ex et ee -> case foldExpr env ex of              -- cut branches
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
         r             -> IfElse r (foldExpr env et) (foldExpr env ee)
-    Match ex mcs -> handleMatch (foldExpr env ex) mcs
+    Match ex mcs -> handleMatch env (foldExpr env ex) mcs
     Bottom ex    -> Bottom (foldExpr env ex)
   where
     setPlus lhs rhs = case (lhs, rhs) of
@@ -128,6 +131,9 @@ foldExpr env expr = case expr of
             Concat (Concat p (LitString (i ++ j))) q
         _ -> Concat lhs rhs
 
+    setSequence' env (Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
+    setSequence' env r             = foldExpr env r
+
     setSequence lhs rhs = case lhs of
         Variable  _         -> rhs
         LitInt    _         -> rhs
@@ -164,6 +170,15 @@ foldExpr env expr = case expr of
         Let bd b e -> Let bd b (handleSeq1 e cont)
         _          -> cont ex
 
+    getExprValue env ex = case ex of
+        Variable nm -> case Map.lookup nm env of
+            Nothing  -> ex
+            Just ex' -> getExprValue env ex'
+        ConstrCall nm tp args -> ConstrCall nm tp (map (getExprValue env) args)
+        Let pd@(ParamDef n _) vl ex' -> getExprValue (Map.insert n vl env) ex'
+        Seq _ nxt -> getExprValue env nxt
+        _         -> ex
+
     handlePattern scrt pat@WildcardPattern = (2, pat, Map.empty)
     handlePattern scrt pat@(IdPattern id) = (2, pat, Map.singleton id scrt)
     handlePattern scrt pat@(LiteralPattern lit) = if isLit scrt
@@ -173,13 +188,13 @@ foldExpr env expr = case expr of
         ConstrCall nm _ as -> if nm /= cons
             then (0, pat, Map.empty)
             else
-                let (possib, newArgs, idMap) = foldl
+                let (possib, newArgs, idMap) = foldr'
                         (\x (i, acc, mp) ->
-                            let (i', p, m') = undefined x
-                            in  (min i i', [p, acc], Map.union m' mp)
+                            let (i', p, m') = uncurry handlePattern x
+                            in  (min i i', p : acc, Map.union m' mp)
                         )
                         (2, [], Map.empty)
-                        (zipWith handlePattern as args)
+                        (zip as args)
                 in  (possib, EnumPattern cons tp newArgs, idMap)
         _ -> (1, pat, Map.empty)
     handleCases scrt (MatchCase pat expr) =
@@ -188,4 +203,5 @@ foldExpr env expr = case expr of
             | possib /= 0
             ]
 
-    handleMatch scrt cases = Match scrt (concatMap (handleCases scrt) cases)
+    handleMatch env scrt cases =
+        Match scrt (concatMap (handleCases (getExprValue env scrt)) cases)

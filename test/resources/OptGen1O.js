@@ -50,7 +50,8 @@ function error(x) { println(x); process.exit(1) }
 
 /* Primitive end */
 
-function read(){let x = (() => {return readLine()})();let y = (() => {return readLine()})();return (toInt(x))+(toInt(y))}
-function doit(){let r = (() => {return read()})();let t = (() => {return ((__match__) => {if(0==__match__){return println("is zero")}if(true){return println("not zero")}error("Match case not exclusive")})(r)})();error("bye")}
+function omg(){return 1}
+function testLitFold(){return ((_) => {return ((_) => {return 7})(println("hello world!"))})(println(toString((omg())+(815))))}
+function test(){return testLitFold()}
 
-doit()
+test()

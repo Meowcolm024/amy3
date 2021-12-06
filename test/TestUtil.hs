@@ -47,7 +47,7 @@ getTest name (f@(FunDef (Idx name' _) _ _ _ _) : rest) | name == name' = Right f
 getTest name (_ : rest) = getTest name rest
 
 runInterpret :: Bool -> String -> String -> IO (Either String (Expr Idx))
-runInterpret opt fun f = do
+runInterpret opt fun f = 
     case loadProgram f of
         Left  s             -> pure $ Left s
         Right (pgs, st, ft) -> case getTest fun pgs of
@@ -55,11 +55,11 @@ runInterpret opt fun f = do
             Right pg -> Right <$> ri pg st ft
     where ri ~(FunDef _ _ _ _ body) = interpret (optimize opt body) Map.empty
 
-runCodeGen :: String -> String
-runCodeGen file = do
+runCodeGen :: Bool -> String -> String
+runCodeGen opt file = 
     case loadProgram file of
         Left  s             -> s
-        Right (pgs, st, ft) -> unpack $ codeGen False pgs st ft
+        Right (pgs, st, ft) -> unpack $ codeGen opt pgs st ft
 
 printExpr :: Expr Idx -> String
 printExpr = removeQuot
