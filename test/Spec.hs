@@ -7,3 +7,4 @@ main = do
     testList
     testGen
     testOpt
+    testOptGen

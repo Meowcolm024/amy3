@@ -5,6 +5,7 @@ module Optimizer
 import qualified Data.Map                      as Map
 import           Types
 import           Utils                          ( isLit )
+import Debug.Trace
 
 -- | env cotains only literals
 type Env = Map.Map Idx (Expr Idx)
@@ -42,14 +43,15 @@ foldExpr env expr = case expr of
     Or     ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setOr
     Equals ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setEq
     Concat ex ex' -> handleSeq (foldExpr env ex) (foldExpr env ex') setConcat
-    Seq    ex ex'       -> setSequence ex ex'
+    Seq    ex ex'       -> setSequence' env $ setSequence ex ex'
     Not ex              -> handleSeq1 (foldExpr env ex) setNot
     Neg ex              -> handleSeq1 (foldExpr env ex) setNeg
     Call a exs          -> Call a (map (foldExpr env) exs)
     ConstrCall a at exs -> ConstrCall a at (map (foldExpr env) exs)
     Let pd@(ParamDef n _) ex ex' ->
-        let r = foldExpr env ex
-        in  if isLit r then foldExpr (Map.insert n r env) ex' else Let pd r ex'
+        let r  = foldExpr env ex
+            e' = Map.insert n r env
+        in  if isLit r then foldExpr e' ex' else Let pd r (foldExpr e' ex')
     IfElse ex et ee -> case foldExpr env ex of
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
@@ -128,6 +130,8 @@ foldExpr env expr = case expr of
             Concat (Concat p (LitString (i ++ j))) q
         _ -> Concat lhs rhs
 
+    setSequence' env ~(Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
+
     setSequence lhs rhs = case lhs of
         Variable  _         -> rhs
         LitInt    _         -> rhs
@@ -175,7 +179,7 @@ foldExpr env expr = case expr of
             else
                 let (possib, newArgs, idMap) = foldl
                         (\x (i, acc, mp) ->
-                            let (i', p, m') = undefined x
+                            let (i', p, m') = undefined x   -- TODO
                             in  (min i i', [p, acc], Map.union m' mp)
                         )
                         (2, [], Map.empty)

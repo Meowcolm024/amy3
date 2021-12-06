@@ -84,11 +84,11 @@ cgExpr st ft params = cg (newPack mkEnv)
                 <> ")"
         Div ex ex' ->
             cgRet p
-                <> "~~("
+                <> "Math.floor(("
                 <> cg (mvRet p) ex
                 <> ")/("
                 <> cg (mvRet p) ex'
-                <> ")"
+                <> "))"
         Mod ex ex' ->
             cgRet p
                 <> "("

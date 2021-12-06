@@ -59,7 +59,7 @@ testGen = do
     hspec $ describe "test gen" $ do
         it "hello test" $ do
             pg <- readFile "test/resources/Hello.scala"
-            writeFile "test/resources/Hello.js" (runCodeGen pg)
+            writeFile "test/resources/Hello.js" (runCodeGen False pg)
             (_, x, err) <- readProcessWithExitCode
                 "node"
                 ["test/resources/Hello.js"]
@@ -68,7 +68,7 @@ testGen = do
             x `shouldBe` "Hello World\n"
         it "io test" $ do
             pg <- readFile "test/resources/Read.scala"
-            writeFile "test/resources/Read.js" (runCodeGen pg)
+            writeFile "test/resources/Read.js" (runCodeGen False pg)
             let run = readProcessWithExitCode "node" ["test/resources/Read.js"]
             (_, out1, err1) <- run "1\n2"
             err1 `shouldBe` ""
@@ -91,7 +91,27 @@ testOpt = hspec $ describe "test optimization" $ do
         cmp "mix"  file1
     it "test bool" $ do
         cmp "bools" file1
-    let file2 = readFile "test/resources/Opt2.scala"
-    it "test Match" $ do
-        cmp "testLitMatch" file2
-        cmp "testADTMatch" file2
+    -- let file2 = readFile "test/resources/Opt2.scala"
+    -- it "test Match" $ do
+    --     cmp "testLitMatch" file2
+    --     cmp "testADTMatch" file2
+
+testOptGen :: IO ()
+testOptGen = hspec $ describe "test optimization" $ do
+    let file1 = "test/resources/OptGen"
+    let
+        cmp file input = do
+            pg <- readFile (file ++ ".scala")
+            writeFile (file ++ "N.js") (runCodeGen False pg)
+            writeFile (file ++ "O.js") (runCodeGen True pg)
+            (_, x1, err1) <- readProcessWithExitCode "node"
+                                                     [file ++ "N.js"]
+                                                     input
+            (_, x2, err2) <- readProcessWithExitCode "node"
+                                                     [file ++ "O.js"]
+                                                     input
+            err1 `shouldBe` ""
+            err2 `shouldBe` ""
+            x2 `shouldBe` x1
+    it "test litfold" $ do
+        cmp file1 []
