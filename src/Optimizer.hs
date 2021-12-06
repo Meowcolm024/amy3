@@ -57,7 +57,7 @@ foldExpr env expr = case expr of
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
         r             -> IfElse r (foldExpr env et) (foldExpr env ee)
-    Match ex mcs -> handleMatch (foldExpr env ex) mcs
+    Match ex mcs -> handleMatch env (foldExpr env ex) mcs
     Bottom ex    -> Bottom (foldExpr env ex)
   where
     setPlus lhs rhs = case (lhs, rhs) of
@@ -131,7 +131,8 @@ foldExpr env expr = case expr of
             Concat (Concat p (LitString (i ++ j))) q
         _ -> Concat lhs rhs
 
-    setSequence' env ~(Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
+    setSequence' env (Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
+    setSequence' env r             = foldExpr env r
 
     setSequence lhs rhs = case lhs of
         Variable  _         -> rhs
@@ -169,6 +170,15 @@ foldExpr env expr = case expr of
         Let bd b e -> Let bd b (handleSeq1 e cont)
         _          -> cont ex
 
+    getExprValue env ex = case ex of
+        Variable nm -> case Map.lookup nm env of
+            Nothing  -> ex
+            Just ex' -> getExprValue env ex'
+        ConstrCall nm tp args -> ConstrCall nm tp (map (getExprValue env) args)
+        Let pd@(ParamDef n _) vl ex' -> getExprValue (Map.insert n vl env) ex'
+        Seq _ nxt -> getExprValue env nxt
+        _         -> ex
+
     handlePattern scrt pat@WildcardPattern = (2, pat, Map.empty)
     handlePattern scrt pat@(IdPattern id) = (2, pat, Map.singleton id scrt)
     handlePattern scrt pat@(LiteralPattern lit) = if isLit scrt
@@ -193,4 +203,5 @@ foldExpr env expr = case expr of
             | possib /= 0
             ]
 
-    handleMatch scrt cases = Match scrt (concatMap (handleCases scrt) cases)
+    handleMatch env scrt cases =
+        Match scrt (concatMap (handleCases (getExprValue env scrt)) cases)
