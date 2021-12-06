@@ -91,14 +91,14 @@ testOpt = hspec $ describe "test optimization" $ do
         cmp "mix"  file1
     it "test bool" $ do
         cmp "bools" file1
-    -- let file2 = readFile "test/resources/Opt2.scala"
-    -- it "test Match" $ do
-    --     cmp "testLitMatch" file2
-    --     cmp "testADTMatch" file2
+    let file2 = readFile "test/resources/Opt2.scala"
+    it "test Match" $ do
+        cmp "testLitMatch" file2
+        cmp "testADTMatch" file2
 
 testOptGen :: IO ()
 testOptGen = hspec $ describe "test optimization" $ do
-    let file1 = "test/resources/OptGen"
+    let file1 = "test/resources/OptGen1"
     let
         cmp file input = do
             pg <- readFile (file ++ ".scala")

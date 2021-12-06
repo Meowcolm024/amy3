@@ -2,10 +2,10 @@ module Optimizer
     ( optimize
     ) where
 
+import           Data.Foldable                  ( Foldable(foldr') )
 import qualified Data.Map                      as Map
 import           Types
 import           Utils                          ( isLit )
-import Debug.Trace
 
 -- | env cotains only literals
 type Env = Map.Map Idx (Expr Idx)
@@ -177,13 +177,13 @@ foldExpr env expr = case expr of
         ConstrCall nm _ as -> if nm /= cons
             then (0, pat, Map.empty)
             else
-                let (possib, newArgs, idMap) = foldl
+                let (possib, newArgs, idMap) = foldr'
                         (\x (i, acc, mp) ->
-                            let (i', p, m') = undefined x   -- TODO
-                            in  (min i i', [p, acc], Map.union m' mp)
+                            let (i', p, m') = uncurry handlePattern x
+                            in  (min i i', p : acc, Map.union m' mp)
                         )
                         (2, [], Map.empty)
-                        (zipWith handlePattern as args)
+                        (zip as args)
                 in  (possib, EnumPattern cons tp newArgs, idMap)
         _ -> (1, pat, Map.empty)
     handleCases scrt (MatchCase pat expr) =

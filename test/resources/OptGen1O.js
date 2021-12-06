@@ -51,7 +51,7 @@ function error(x) { println(x); process.exit(1) }
 /* Primitive end */
 
 function omg(){return 1}
-function testLitFold(){let x = (1)+((2)*(3));let y = ("hello")+(" world");println(toString(Math.floor(((x)*(233))/(2))));println((y)+("!"));return x}
+function testLitFold(){println(toString((omg())+(815)));println("hello world!");return 7}
 function test(){return testLitFold()}
 
 test()
