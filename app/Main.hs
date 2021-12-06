@@ -45,7 +45,7 @@ entry (Opts fs m op ot) = case m of
             Just f  -> TIO.writeFile f prog
             Nothing -> do
                 putStrLn
-                    "[Warning] No output file indicated, writting to 'out.js'"
+                    "[Warning] No output file indicated, write to 'out.js'"
                 TIO.writeFile "out.js" prog
 
 cli :: Parser Opts

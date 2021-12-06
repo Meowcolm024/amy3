@@ -97,7 +97,7 @@ testOpt = hspec $ describe "test optimization" $ do
         cmp "testADTMatch" file2
 
 testOptGen :: IO ()
-testOptGen = hspec $ describe "test opt gernerated" $ do
+testOptGen = hspec $ describe "test opt gen" $ do
     let
         cmp file input = do
             pg <- readFile $ file ++ ".scala"

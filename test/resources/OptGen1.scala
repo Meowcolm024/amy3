@@ -2,12 +2,13 @@ def omg(): Int = {
     1
 }
 
-def testLitFold(): Int = {
+def testLitFold(): Unit = {
     val x = 1 + 2 * 3;
     val y = "hello" ++ " world";
     println(toString(x * 233 / 2 + omg()));
     println(y ++ "!");
-    x
+    val z = 1 + omg();
+    print(toString(z / z + omg()))
 }
 
 @main
