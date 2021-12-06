@@ -51,7 +51,7 @@ foldExpr env expr = case expr of
     Let pd@(ParamDef n _) ex ex' ->
         let r  = foldExpr env ex
             e' = Map.insert n r env
-        in  Let pd r (foldExpr e' ex')
+        in  if isLit r then foldExpr e' ex' else Let pd r (foldExpr e' ex')
     IfElse ex et ee -> case foldExpr env ex of
         LitBool True  -> foldExpr env et
         LitBool False -> foldExpr env ee
@@ -168,14 +168,14 @@ foldExpr env expr = case expr of
         Let bd b e -> Let bd b (handleSeq1 e cont)
         _          -> cont ex
 
-    getExprValue env exp = case exp of
+    getExprValue env ex = case ex of
         Variable nm                     -> case Map.lookup nm env of
-                                                Nothing -> exp
-                                                Just ex -> getExprValue env exp
+                                                Nothing -> ex
+                                                Just ex' -> getExprValue env ex'
         ConstrCall nm tp args           -> ConstrCall nm tp (map (getExprValue env) args)
-        Let pd@(ParamDef n _) ex ex'    -> getExprValue (Map.insert n ex env) ex'
+        Let pd@(ParamDef n _) vl ex'    -> getExprValue (Map.insert n vl env) ex'
         Seq _ nxt                       -> getExprValue env nxt
-        _                               -> exp
+        _                               -> ex
 
     handlePattern scrt pat@WildcardPattern = (2, pat, Map.empty)
     handlePattern scrt pat@(IdPattern id) = (2, pat, Map.singleton id scrt)
