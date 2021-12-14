@@ -138,9 +138,15 @@ cgExpr st ft params = cg (newPack mkEnv)
                 <> ")+("
                 <> cg (mvRet p) ex'
                 <> ")"
-        Seq ex ex' -> cg (mvRet p) ex <> ";\n" <> cg p ex'
-        Not ex     -> cgRet p <> "!(" <> cg (mvRet p) ex <> ")"
-        Neg ex     -> cgRet p <> "-(" <> cg (mvRet p) ex <> ")"
+        Seq ex ex' ->   -- `expr1 ; expr2` is translated to
+            cgRet p     -- ((_) => { expr2 }) ( expr1 )
+                <> "((_) => {"
+                <> cg p {insRet = True } ex'
+                <> "})\n("
+                <> cg (mvRet p) ex
+                <> ")"
+        Not ex -> cgRet p <> "!(" <> cg (mvRet p) ex <> ")"
+        Neg ex -> cgRet p <> "-(" <> cg (mvRet p) ex <> ")"
         Call idx exs ->
             cgRet p
                 <> T.pack (nameIdx idx)
@@ -153,10 +159,10 @@ cgExpr st ft params = cg (newPack mkEnv)
                 Nothing  -> error "???"
         Let (ParamDef n _) ex ex' ->
             "let "
-                <> T.pack (show n)
-                <> " = "
-                <> cg (mvRet p) ex
-                <> ";\n"
+                <> T.pack (nameIdx n)
+                <> " = (() => {"
+                <> cg p {insRet = True} ex
+                <> "})();\n"
                 <> cg p ex'
         IfElse ex ex' ex3 ->
             cgRet p
