@@ -2,7 +2,7 @@
 
 [![Haskell CI](https://github.com/Meowcolm024/amy3/actions/workflows/haskell.yml/badge.svg)](https://github.com/Meowcolm024/amy3/actions/workflows/haskell.yml)
 
-Amy with simple polymorphic type.
+Amy with simple polymorphic type and constant folding optimization.
 
 ## Build
 
@@ -12,7 +12,7 @@ Clone:
 $ git clone https://github.com/Meowcolm024/amy3.git
 ```
 
-Build using stack:
+Build using stack (version 2.7.3+):
 
 ``` sh
 $ stack build
@@ -43,7 +43,7 @@ Available options:
   -h,--help                Show this help text
 ```
 
-Interpret source file:
+Interpret an [example](examples/Hi.scala) source file:
 
 ``` sh
 $ stack run -- -i examples/Hi.scala examples/Lib.scala
@@ -53,7 +53,7 @@ Maybe.Just(true)
 Input a number ('x' to finish):  
 ```
 
-Compile and generate JS:
+Compile and generate JavaScript (tested under *node* v17.0.1):
 
 ``` sh
 $ stack run -- examples/What.scala --output=What.js
