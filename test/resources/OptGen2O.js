@@ -51,7 +51,25 @@ function error(x) { println(x); process.exit(1) }
 /* Primitive end */
 
 
-function getInt(x){return x}
-function test(){let x = (() => {let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})();let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":10}})();return ((_) => {return ((__match__) => {if(__match__.constr=="Sub3"){if(true){if(true){let any=__match__._0;return ((__match__) => {if(true){return println("Hello3\n")}error("Match case not exclusive")})(any)}}}if(true){return println("Hello4\n")}error("Match case not exclusive")})({"type":"MyBase","constr":"Sub3","_0":y,"_1":y})})(println(toString(((_) => {return ((_) => {return ((_) => {return 3})(12)})(getInt(15))})("HelloWorld"))))}
+function getInt(x_0){return x_0}
+function simpLitMatch(){return ((__match__) => {if(1==__match__){return 1}if(true){let any_0=__match__;return (any_0)+(1)}error("Match case not exclusive")})(getInt(12))
+}
+function simpADTMatch(){let x_0 = (() => {return {"type":"MyBase","constr":"Sub3","_0":{"type":"MyBase","constr":"Sub1","_0":getInt(1)},"_1":{"type":"MyBase","constr":"Sub2","_0":1,"_1":1}}})();
+return ((__match__) => {if(__match__.constr=="Sub3"){if(__match__._0.constr=="Sub1"){if(2==__match__._0._0){if(true){return 0}}}}if(true){return 2}error("Match case not exclusive")})(x_0)
+}
+function simpIf(){return ((_) => {return 1})
+(getInt(12))}
+function complexExpr(){let x_0 = (() => {let y_0 = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();
+return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})();
+let y_1 = (() => {return {"type":"MyBase","constr":"Sub1","_0":10}})();
+return ((_) => {return ((__match__) => {if(__match__.constr=="Sub3"){if(true){if(true){let any_3=__match__._0;return ((__match__) => {if(true){return println("Hello3\n")}error("Match case not exclusive")})(any_3)
+}}}error("Match case not exclusive")})({"type":"MyBase","constr":"Sub3","_0":y_1,"_1":y_1})
+})
+(println(toString(((_) => {return 3})
+(getInt(15)))))}
+function test(){return ((_) => {return ((_) => {return ((_) => {return complexExpr()})
+(simpLitMatch())})
+(simpADTMatch())})
+(simpIf())}
 
 test()
