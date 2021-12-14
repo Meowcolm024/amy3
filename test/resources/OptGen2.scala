@@ -18,7 +18,7 @@ def test(): Unit = {
   val y: MyBase = MyBase.Sub1(10);
   println(toString(
     (
-      MyBase.Sub1(); 
+      MyBase.Sub0(); 
       "Hello"++"World";
       1
     ) 
@@ -31,10 +31,10 @@ def test(): Unit = {
       tmp
     )
   ));
-  Sub3(y,y) match{
+  MyBase.Sub3(y,y) match{
     case MyBase.Sub2(_, _) => println("Hello1\n")
     case MyBase.Sub3(any, _) => any match{
-      case Sub2(_, _) => println("Hello2\n")
+      case MyBase.Sub2(_, _) => println("Hello2\n")
       case _ => println("Hello3\n")
     }
     case _ => println("Hello4\n")

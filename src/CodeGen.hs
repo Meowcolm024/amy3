@@ -56,7 +56,7 @@ cgExpr st ft params = cg (newPack mkEnv)
     cgRet p = if insRet p then "return " else ""
     cg :: Pack -> Expr Idx -> T.Text
     cg p expr = case expr of
-        Variable  idx -> cgRet p <> T.pack (nameIdx idx)
+        Variable  idx -> cgRet p <> T.pack (show idx)
         LitInt    n   -> cgRet p <> T.pack (show n)
         LitBool   b   -> cgRet p <> if b then "true" else "false"
         LitString s   -> cgRet p <> T.pack (show s)
@@ -138,7 +138,7 @@ cgExpr st ft params = cg (newPack mkEnv)
                 <> ")+("
                 <> cg (mvRet p) ex'
                 <> ")"
-        Seq ex ex' -> cg (mvRet p) ex <> ";" <> cg p ex'
+        Seq ex ex' -> cg (mvRet p) ex <> ";\n" <> cg p ex'
         Not ex     -> cgRet p <> "!(" <> cg (mvRet p) ex <> ")"
         Neg ex     -> cgRet p <> "-(" <> cg (mvRet p) ex <> ")"
         Call idx exs ->
@@ -153,27 +153,27 @@ cgExpr st ft params = cg (newPack mkEnv)
                 Nothing  -> error "???"
         Let (ParamDef n _) ex ex' ->
             "let "
-                <> T.pack (nameIdx n)
+                <> T.pack (show n)
                 <> " = "
                 <> cg (mvRet p) ex
-                <> ";"
+                <> ";\n"
                 <> cg p ex'
         IfElse ex ex' ex3 ->
             cgRet p
                 <> "(() => {"
                 <> cg p { insRet = True } ex
-                <> "})() ? (() => {"
+                <> "})() ?\n (() => {"
                 <> cg p { insRet = True } ex'
-                <> "})() : (() => {"
+                <> "})() :\n (() => {"
                 <> cg p { insRet = True } ex3
-                <> "})()"
+                <> "})()\n"
         Match ex mcs ->
             cgRet p
                 <> "((__match__) => {"
                 <> handleCases mcs (p { insRet = True }) "__match__"
                 <> "})("
                 <> cg (mvRet p) ex
-                <> ")"
+                <> ")\n"
         Bottom ex -> "error(" <> cg (mvRet p) ex <> ")"
         _         -> error "???"
 

@@ -43,7 +43,8 @@ foldExpr env expr = case expr of
     Or     ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setOr
     Equals ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setEq
     Concat ex ex' -> handleSeq (foldExpr env ex) (foldExpr env ex') setConcat
-    Seq    ex ex'       -> setSequence' env $ setSequence ex ex'
+    -- Seq    ex ex'       -> setSequence' env $ setSequence ex ex'
+    Seq    ex ex'       -> setSequence (foldExpr env ex) (foldExpr env ex')
     Not ex              -> handleSeq1 (foldExpr env ex) setNot
     Neg ex              -> handleSeq1 (foldExpr env ex) setNeg
     Call a exs          -> Call a (map (foldExpr env) exs)
@@ -128,7 +129,7 @@ foldExpr env expr = case expr of
         (LitString i, Concat (LitString j) q) -> Concat (LitString (i ++ j)) q
         (Concat p (LitString i), Concat (LitString j) q) ->
             Concat (Concat p (LitString (i ++ j))) q
-        _ -> Concat lhs rhs
+        (_, _) -> Concat lhs rhs
 
     setSequence' env ~(Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
 
