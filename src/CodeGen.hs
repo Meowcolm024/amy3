@@ -38,9 +38,7 @@ genDef opt st ft (FunDef name _ params _ body) =
     "function "
         <> T.pack (nameIdx name)
         <> "("
-        <> T.intercalate
-               ","
-               (map (\(ParamDef n _) -> T.pack $ show n) params)
+        <> T.intercalate "," (map (\(ParamDef n _) -> T.pack $ show n) params)
         <> "){"
         <> cgExpr st ft params (optimize opt body)
         <> "}"
@@ -141,7 +139,7 @@ cgExpr st ft params = cg (newPack mkEnv)
         Seq ex ex' ->   -- `expr1 ; expr2` is translated to
             cgRet p     -- ((_) => { expr2 }) ( expr1 )
                 <> "((_) => {"
-                <> cg p {insRet = True } ex'
+                <> cg p { insRet = True } ex'
                 <> "})\n("
                 <> cg (mvRet p) ex
                 <> ")"
@@ -161,7 +159,7 @@ cgExpr st ft params = cg (newPack mkEnv)
             "let "
                 <> T.pack (show n)
                 <> " = (() => {"
-                <> cg p {insRet = True} ex
+                <> cg p { insRet = True } ex
                 <> "})();\n"
                 <> cg p ex'
         IfElse ex ex' ex3 ->
@@ -209,9 +207,7 @@ cgExpr st ft params = cg (newPack mkEnv)
         matchAndBind pat ex = case pat of
             WildcardPattern -> (["(true)"], [])
             IdPattern idx ->
-                ( ["(true)"]
-                , ["let " <> T.pack (show idx) <> "=" <> ex <> ";"]
-                )
+                (["(true)"], ["let " <> T.pack (show idx) <> "=" <> ex <> ";"])
             LiteralPattern ex' ->
                 (["(" <> cg (mvRet p) ex' <> "==" <> ex <> ")"], [])
             EnumPattern idx _ pats ->

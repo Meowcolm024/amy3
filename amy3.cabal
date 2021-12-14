@@ -54,7 +54,7 @@ library
 executable amy3-exe
   main-is: Main.hs
   other-modules:
-      Pipe
+      Mode
       Paths_amy3
   hs-source-dirs:
       app

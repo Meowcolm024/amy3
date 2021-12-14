@@ -18,6 +18,17 @@ testMath = hspec $ describe "test math" $ do
         result <- run "testFact"
         result `shouldBe` Right (LitInt (fact 10))
 
+testNameErr :: IO ()
+testNameErr = hspec $ describe "test name errpr" $ do
+    let file  = readFile "test/resources/NameErr.scala"
+    let file2  = readFile "test/resources/NameErr2.scala"
+    it "duplicate name in fun arg" $ do
+        r <- loadProgram <$> file
+        r `shouldNotSatisfy` isRight
+    it "duplicate name in conster arg" $ do
+        r <- loadProgram <$> file2
+        r `shouldNotSatisfy` isRight
+
 testTypeErr :: IO ()
 testTypeErr = hspec $ describe "test type errpr" $ do
     let file  = readFile "test/resources/TypeErr.scala"
@@ -114,7 +125,10 @@ testOptGen = hspec $ describe "test opt gen" $ do
             x2 `shouldBe` x1
     let file1 = "test/resources/OptGen1"
     let file2 = "test/resources/OptGen2"
-    it "test litfold js1" $ do
+    let file3 = "test/resources/OptGen3"
+    it "test litfold js" $ do
         cmp file1 []
     it "test litfold js2" $ do
         cmp file2 []
+    it "test seq input" $ do
+        cmp file3 "haha\ntql\nhello\n"

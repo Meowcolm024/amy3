@@ -3,3 +3,4 @@
 .metals/
 out.js
 node_modules
+test/resources/*.js
