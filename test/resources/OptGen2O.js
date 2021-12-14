@@ -51,7 +51,14 @@ function error(x) { println(x); process.exit(1) }
 /* Primitive end */
 
 
-function getInt(x){return x}
-function test(){let x = (() => {let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})();let y = (() => {return {"type":"MyBase","constr":"Sub1","_0":10}})();return ((_) => {return ((__match__) => {if(__match__.constr=="Sub3"){if(true){if(true){let any=__match__._0;return ((__match__) => {if(true){return println("Hello3\n")}error("Match case not exclusive")})(any)}}}if(true){return println("Hello4\n")}error("Match case not exclusive")})({"type":"MyBase","constr":"Sub3","_0":y,"_1":y})})(println(toString(((_) => {return ((_) => {return ((_) => {return 3})(12)})(getInt(15))})("HelloWorld"))))}
+function getInt(x_0){return x_0}
+function test(){let x_0 = (() => {let y_0 = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();
+return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})();
+let y_1 = (() => {return {"type":"MyBase","constr":"Sub1","_0":10}})();
+return ((_) => {return ((__match__) => {if(__match__.constr=="Sub3"){if(true){if(true){let any_3=__match__._0;return ((__match__) => {if(__match__.constr=="Sub2"){if(true){if(true){return println("Hello2\n")}}}if(true){return println("Hello3\n")}error("Match case not exclusive")})(any_3)
+}}}if(true){return println("Hello4\n")}error("Match case not exclusive")})({"type":"MyBase","constr":"Sub3","_0":y_1,"_1":y_1})
+})
+(println(toString(((_) => {return 3})
+(getInt(15)))))}
 
 test()

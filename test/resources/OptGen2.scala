@@ -26,17 +26,6 @@ def test(): Unit = {
       val tmp: Int = 2; 
       tmp
     )
-<<<<<<< HEAD
-  ));
-  MyBase.Sub3(y,y) match{
-    case MyBase.Sub2(_, _) => println("Hello1\n")
-    case MyBase.Sub3(any, _) => any match{
-      case MyBase.Sub2(_, _) => println("Hello2\n")
-      case _ => println("Hello3\n")
-    }
-    case _ => println("Hello4\n")
-  }
-=======
 	));
 	MyBase.Sub3(y,y) match{
 		case MyBase.Sub2(_, _) => println("Hello1\n")
@@ -46,5 +35,4 @@ def test(): Unit = {
         }
 	    case _ => println("Hello4\n")
 	}
->>>>>>> main
 }

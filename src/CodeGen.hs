@@ -40,7 +40,7 @@ genDef opt st ft (FunDef name _ params _ body) =
         <> "("
         <> T.intercalate
                ","
-               (map (\(ParamDef n _) -> T.pack $ nameIdx n) params)
+               (map (\(ParamDef n _) -> T.pack $ show n) params)
         <> "){"
         <> cgExpr st ft params (optimize opt body)
         <> "}"
@@ -51,7 +51,7 @@ cgExpr :: SymbolTable -> FuncTable -> [ParamDef Idx] -> Expr Idx -> T.Text
 cgExpr st ft params = cg (newPack mkEnv)
   where
     mkEnv = Map.fromList
-        $ map (\(ParamDef name _) -> (name, T.pack $ nameIdx name)) params
+        $ map (\(ParamDef name _) -> (name, T.pack $ show name)) params
     mvRet p = p { insRet = False }
     cgRet p = if insRet p then "return " else ""
     cg :: Pack -> Expr Idx -> T.Text
@@ -159,7 +159,7 @@ cgExpr st ft params = cg (newPack mkEnv)
                 Nothing  -> error "???"
         Let (ParamDef n _) ex ex' ->
             "let "
-                <> T.pack (nameIdx n)
+                <> T.pack (show n)
                 <> " = (() => {"
                 <> cg p {insRet = True} ex
                 <> "})();\n"
@@ -210,7 +210,7 @@ cgExpr st ft params = cg (newPack mkEnv)
             WildcardPattern -> (["(true)"], [])
             IdPattern idx ->
                 ( ["(true)"]
-                , ["let " <> T.pack (nameIdx idx) <> "=" <> ex <> ";"]
+                , ["let " <> T.pack (show idx) <> "=" <> ex <> ";"]
                 )
             LiteralPattern ex' ->
                 (["(" <> cg (mvRet p) ex' <> "==" <> ex <> ")"], [])
