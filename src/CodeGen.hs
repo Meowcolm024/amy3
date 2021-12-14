@@ -40,7 +40,7 @@ genDef opt st ft (FunDef name _ params _ body) =
         <> "("
         <> T.intercalate
                ","
-               (map (\(ParamDef n _) -> T.pack $ nameIdx n) params)
+               (map (\(ParamDef n _) -> T.pack $ show n) params)
         <> "){"
         <> cgExpr st ft params (optimize opt body)
         <> "}"
@@ -51,12 +51,12 @@ cgExpr :: SymbolTable -> FuncTable -> [ParamDef Idx] -> Expr Idx -> T.Text
 cgExpr st ft params = cg (newPack mkEnv)
   where
     mkEnv = Map.fromList
-        $ map (\(ParamDef name _) -> (name, T.pack $ nameIdx name)) params
+        $ map (\(ParamDef name _) -> (name, T.pack $ show name)) params
     mvRet p = p { insRet = False }
     cgRet p = if insRet p then "return " else ""
     cg :: Pack -> Expr Idx -> T.Text
     cg p expr = case expr of
-        Variable  idx -> cgRet p <> T.pack (nameIdx idx)
+        Variable  idx -> cgRet p <> T.pack (show idx)
         LitInt    n   -> cgRet p <> T.pack (show n)
         LitBool   b   -> cgRet p <> if b then "true" else "false"
         LitString s   -> cgRet p <> T.pack (show s)
@@ -142,7 +142,7 @@ cgExpr st ft params = cg (newPack mkEnv)
             cgRet p     -- ((_) => { expr2 }) ( expr1 )
                 <> "((_) => {"
                 <> cg p {insRet = True } ex'
-                <> "})("
+                <> "})\n("
                 <> cg (mvRet p) ex
                 <> ")"
         Not ex -> cgRet p <> "!(" <> cg (mvRet p) ex <> ")"
@@ -159,27 +159,27 @@ cgExpr st ft params = cg (newPack mkEnv)
                 Nothing  -> error "???"
         Let (ParamDef n _) ex ex' ->
             "let "
-                <> T.pack (nameIdx n)
+                <> T.pack (show n)
                 <> " = (() => {"
                 <> cg p {insRet = True} ex
-                <> "})();"
+                <> "})();\n"
                 <> cg p ex'
         IfElse ex ex' ex3 ->
             cgRet p
                 <> "(() => {"
                 <> cg p { insRet = True } ex
-                <> "})() ? (() => {"
+                <> "})() ?\n (() => {"
                 <> cg p { insRet = True } ex'
-                <> "})() : (() => {"
+                <> "})() :\n (() => {"
                 <> cg p { insRet = True } ex3
-                <> "})()"
+                <> "})()\n"
         Match ex mcs ->
             cgRet p
                 <> "((__match__) => {"
                 <> handleCases mcs (p { insRet = True }) "__match__"
                 <> "})("
                 <> cg (mvRet p) ex
-                <> ")"
+                <> ")\n"
         Bottom ex -> "error(" <> cg (mvRet p) ex <> ")"
         _         -> error "???"
 
@@ -210,7 +210,7 @@ cgExpr st ft params = cg (newPack mkEnv)
             WildcardPattern -> (["(true)"], [])
             IdPattern idx ->
                 ( ["(true)"]
-                , ["let " <> T.pack (nameIdx idx) <> "=" <> ex <> ";"]
+                , ["let " <> T.pack (show idx) <> "=" <> ex <> ";"]
                 )
             LiteralPattern ex' ->
                 (["(" <> cg (mvRet p) ex' <> "==" <> ex <> ")"], [])

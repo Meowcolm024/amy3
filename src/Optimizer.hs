@@ -43,7 +43,8 @@ foldExpr env expr = case expr of
     Or     ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setOr
     Equals ex ex'       -> handleSeq (foldExpr env ex) (foldExpr env ex') setEq
     Concat ex ex' -> handleSeq (foldExpr env ex) (foldExpr env ex') setConcat
-    Seq    ex ex'       -> setSequence' env $ setSequence ex ex'
+    -- Seq    ex ex'       -> setSequence' env $ setSequence ex ex'
+    Seq    ex ex'       -> setSequence (foldExpr env ex) (foldExpr env ex')
     Not ex              -> handleSeq1 (foldExpr env ex) setNot
     Neg ex              -> handleSeq1 (foldExpr env ex) setNeg
     Call a exs          -> Call a (map (foldExpr env) exs)
@@ -52,11 +53,13 @@ foldExpr env expr = case expr of
         let r = foldExpr env ex
         in  if isLit r
                 then foldExpr (Map.insert n r env) ex'      -- inline local binding
-                else Let pd r (foldExpr env ex')
-    IfElse ex et ee -> case foldExpr env ex of              -- cut branches
-        LitBool True  -> foldExpr env et
-        LitBool False -> foldExpr env ee
-        r             -> IfElse r (foldExpr env et) (foldExpr env ee)
+                else Let pd r (foldExpr (Map.insert n r env) ex')
+    IfElse ex et ee ->
+        let r = foldExpr env ex in
+        case getExprValue env r of              -- cut branches
+        LitBool True  -> setSequence r (foldExpr env et)
+        LitBool False -> setSequence r (foldExpr env ee)
+        _             -> IfElse r (foldExpr env et) (foldExpr env ee)
     Match ex mcs -> handleMatch env (foldExpr env ex) mcs
     Bottom ex    -> Bottom (foldExpr env ex)
   where
@@ -129,10 +132,10 @@ foldExpr env expr = case expr of
         (LitString i, Concat (LitString j) q) -> Concat (LitString (i ++ j)) q
         (Concat p (LitString i), Concat (LitString j) q) ->
             Concat (Concat p (LitString (i ++ j))) q
-        _ -> Concat lhs rhs
+        (_, _) -> Concat lhs rhs
 
-    setSequence' env (Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
-    setSequence' env r             = foldExpr env r
+    -- setSequence' env (Seq lhs rhs) = Seq (foldExpr env lhs) (foldExpr env rhs)
+    -- setSequence' env r             = foldExpr env r
 
     setSequence lhs rhs = case lhs of
         Variable  _         -> rhs
@@ -195,13 +198,29 @@ foldExpr env expr = case expr of
                         )
                         (2, [], Map.empty)
                         (zip as args)
-                in  (possib, EnumPattern cons tp newArgs, idMap)
+                in  let allWild = (possib == 2 && all isWildCard newArgs) in
+                    (possib, if allWild then WildcardPattern else EnumPattern cons tp newArgs, idMap)
+                where
+                    isWildCard WildcardPattern = True
+                    isWildCard _ = False
         _ -> (1, pat, Map.empty)
-    handleCases scrt (MatchCase pat expr) =
-        let (possib, newPat, idMap) = handlePattern scrt pat
-        in  [ MatchCase newPat (foldExpr (Map.union env idMap) expr)
-            | possib /= 0
-            ]
+    -- handleCases scrt (MatchCase pat expr) =
+    --     let (possib, newPat, idMap) = handlePattern scrt pat
+    --     in  [ MatchCase newPat (foldExpr (Map.union env idMap) expr)
+    --         | possib /= 0
+    --         ]
+
+    genNewCases scrt [] = []
+    genNewCases scrt ((MatchCase pat expr) : rst) =
+        let (possib, newPat, idMap) = handlePattern scrt pat in
+            case possib of
+                0 -> genNewCases scrt rst
+                1 -> MatchCase newPat (foldExpr (Map.union env idMap) expr) : genNewCases scrt rst
+                2 -> [MatchCase newPat (foldExpr (Map.union env idMap) expr)]
+                _ -> error "???"
+
 
     handleMatch env scrt cases =
-        Match scrt (concatMap (handleCases (getExprValue env scrt)) cases)
+        let newCases = genNewCases(getExprValue env scrt) cases in
+            if not (null newCases) then Match scrt newCases
+            else                        setSequence scrt (Bottom (LitString "Match failed"))

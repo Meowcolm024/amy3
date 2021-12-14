@@ -1,14 +1,37 @@
 enum MyBase{
-	case Sub0()
-	case Sub1(x: Int)
-	case Sub2(x: Int, y: Int)
-	case Sub3(s1: MyBase, s2: MyBase)
+  case Sub0()
+  case Sub1(x: Int)
+  case Sub2(x: Int, y: Int)
+  case Sub3(s1: MyBase, s2: MyBase)
 }
 
 def getInt(x: Int): Int = {x}
 
-@main
-def test(): Unit = {
+def simpLitMatch(): Int = {
+  getInt(12) match{
+    case 1 => 1
+    case any => any+1
+    case _ => 2
+  }
+}
+
+def simpADTMatch(): Int = {
+  val x : MyBase = MyBase.Sub3(MyBase.Sub1(getInt(1)), MyBase.Sub2(1, 1));
+  // MyBase.Sub3(MyBase.Sub0(), MyBase.Sub2(1, 1)) 
+  x 
+  match{
+    case MyBase.Sub3(MyBase.Sub1(2), MyBase.Sub2(1, 1)) => 0
+    case MyBase.Sub3(MyBase.Sub0(), MyBase.Sub2(1, 1)) => 1
+    case _ => 2
+  }
+}
+
+def simpIf(): Int = {
+  if((getInt(12) == 1+1 || true)) { 1 }
+  else { 2 }
+}
+
+def complexExpr(): Unit = {
     val x: MyBase = (
             MyBase.Sub0();
             val y: MyBase = MyBase.Sub1(12); 
@@ -35,4 +58,12 @@ def test(): Unit = {
         }
 	    case _ => println("Hello4\n")
 	}
+}
+
+@main
+def test(): Unit = {
+  simpIf();
+  simpADTMatch();
+  simpLitMatch();
+  complexExpr()
 }
