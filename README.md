@@ -50,10 +50,11 @@ $ stack run -- -i examples/Hi.scala examples/Lib.scala
 false
 true
 Maybe.Just(true)
-Input a number ('x' to finish):  
+input something: 
 ```
 
-Compile and generate JavaScript (tested under *node* v17.0.1):
+Compile and generate JavaScript from another [example](examples/What.scala) source file
+(tested under *node* v17.0.1):
 
 ``` sh
 $ stack run -- examples/What.scala --output=What.js
@@ -68,17 +69,17 @@ bye!
 1. removed *modules*
 2. removed *abstract class* and *case class* style, ADT, in favor of the *enum* syntax
 3. need to supply a main function using `@main`
-4. added parametric types for ADT and functions
+4. added parametric types for ADTs and functions
 5. optional type signature for local bindings
 6. constant folding optimization and redundent branch elimination
 
 ## Known issues
 
-The generated JavaScript program is not stable, it may exit will with `max stack size reached`, which is quite strange. This is probably related to the weired readline...
+The generated JavaScript program is not stable, it may exit will with `max stack size reached`, which is quite strange. This is probably related to the weired readline... (we may need to use `error` to force quit)
 
 ## Primitives
 
-The following functions are primitive function:
+The following functions are primitive functions:
 
 ``` scala
 // print string

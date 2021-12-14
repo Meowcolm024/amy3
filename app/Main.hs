@@ -3,8 +3,8 @@ module Main where
 import           Control.Monad                  ( when )
 import           Data.Maybe                     ( isJust )
 import qualified Data.Text.IO                  as TIO
+import           Mode
 import           Options.Applicative
-import           Pipe
 import           System.Exit                    ( exitFailure )
 import           System.IO
 import           Utils                          ( evalError )
@@ -44,8 +44,7 @@ entry (Opts fs m op ot) = case m of
         case ot of
             Just f  -> TIO.writeFile f prog
             Nothing -> do
-                putStrLn
-                    "[Warning] No output file indicated, write to 'out.js'"
+                putStrLn "[Warning] No output file indicated, write to 'out.js'"
                 TIO.writeFile "out.js" prog
 
 cli :: Parser Opts

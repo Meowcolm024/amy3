@@ -1,4 +1,4 @@
-module Pipe
+module Mode
     ( codeGenMode
     , interpretMode
     ) where

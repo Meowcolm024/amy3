@@ -3,10 +3,13 @@ module NameAnalysis
     ) where
 
 import           Control.Monad                  ( when )
-import           Control.Monad.Except           ( throwError )
+import           Control.Monad.Except           ( liftEither
+                                                , throwError
+                                                )
 import           Control.Monad.Trans.Class      ( MonadTrans(lift) )
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.State
+import qualified Data.List                     as L
 import qualified Data.Map                      as Map
 import           Data.Maybe                     ( fromJust
                                                 , isJust
@@ -15,6 +18,7 @@ import           SymbolTable
 import           Types
 import           Utils                          ( isMainDef )
 
+-- | stateful symbol table with exceptions
 type Analysis a = ExceptT String (State TableST) a
 
 -- | check whether there are multiple main functions or invalid signature
@@ -94,6 +98,11 @@ typeParamBinding :: [AType String] -> [(String, Idx)]
 typeParamBinding targs =
     zipWith (\(TypeParam x) (TypeParam y) -> (x, y)) targs (addTargs targs 0)
 
+checkDup :: String -> [String] -> Either String ()
+checkDup name ns = if length ns /= length (L.nub ns)
+    then Left $ "Arguments of " ++ name ++ " constians duplicated names."
+    else Right ()
+
 -- | discover type constructors
 addConstrs :: Program String -> Analysis SymbolTable
 addConstrs [] = do
@@ -107,6 +116,8 @@ addConstrs (EnumDef name targs csts : ts) = do
     addC :: [(String, Idx)] -> CaseDef String -> Analysis ()
     addC targs' ~(CaseDef caseName params (EnumType name _)) = do
         (TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
+        -- check duplicate names
+        liftEither $ checkDup caseName $ map (\(ParamDef n _) -> n) params
         -- check if all the params 
         case checkParams targs' s params of
             Left  ss  -> throwError ss
@@ -165,6 +176,8 @@ addFuncSig (FunDef name targs params ret _ : st) = do
     (TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
     -- local type vars shadows global types
     let targs' = typeParamBinding targs
+    -- check duplicate names
+    liftEither $ checkDup name $ map (\(ParamDef n _) -> n) params
     -- abort when already defined
     when (isJust $ Map.lookup name dn) $ throwError $ "Redefinition of " ++ name
     case checkParams targs' s (ParamDef "ret" ret : params) of
@@ -194,7 +207,7 @@ tranfromFunc (FunDef name targs params ret body : st) = do
     let Just fi          = lookupName name s
     let (nls, lidx) = addBindings params (Map.fromList targs', length targs') -- init local bindings
     lift . put $ tb { localIndex = lidx }
-    result <- tf body nls                             -- analyze body
+    result <- tf body nls                           -- analyze body
     rest   <- tranfromFunc st                       -- analyze rest
     pure $ FunDef fi (map (TypeParam . snd) targs') ps rt result : rest
   where
