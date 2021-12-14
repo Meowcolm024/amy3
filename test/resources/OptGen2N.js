@@ -52,7 +52,16 @@ function error(x) { println(x); process.exit(1) }
 
 
 function getInt(x_0){return x_0}
-function test(){let x_0 = (() => {return ((_) => {let y_0 = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();
+function simpLitMatch(){return ((__match__) => {if(1==__match__){return 1}if(true){let any_0=__match__;return (any_0)+(1)}if(true){return 2}error("Match case not exclusive")})(getInt(12))
+}
+function simpADTMatch(){let x_0 = (() => {return {"type":"MyBase","constr":"Sub3","_0":{"type":"MyBase","constr":"Sub1","_0":getInt(1)},"_1":{"type":"MyBase","constr":"Sub2","_0":1,"_1":1}}})();
+return ((__match__) => {if(__match__.constr=="Sub3"){if(__match__._0.constr=="Sub1"){if(2==__match__._0._0){if(__match__._1.constr=="Sub2"){if(1==__match__._1._0){if(1==__match__._1._1){return 0}}}}}}if(__match__.constr=="Sub3"){if(__match__._0.constr=="Sub0"){if(__match__._1.constr=="Sub2"){if(1==__match__._1._0){if(1==__match__._1._1){return 1}}}}}if(true){return 2}error("Match case not exclusive")})(x_0)
+}
+function simpIf(){return (() => {return ((getInt(12))==((1)+(1)))||(true)})() ?
+ (() => {return 1})() :
+ (() => {return 2})()
+}
+function complexExpr(){let x_0 = (() => {return ((_) => {let y_0 = (() => {return {"type":"MyBase","constr":"Sub1","_0":12}})();
 return (() => {return ((15)-(3))==(12)})() ?
  (() => {return {"type":"MyBase","constr":"Sub2","_0":15,"_1":16}})() :
  (() => {return y_0})()
@@ -72,5 +81,9 @@ return tmp_2})
  (() => {return 12})()
 )})
 (getInt(15))))))}
+function test(){return ((_) => {return ((_) => {return ((_) => {return complexExpr()})
+(simpLitMatch())})
+(simpADTMatch())})
+(simpIf())}
 
 test()
