@@ -11,9 +11,7 @@ import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.State
 import qualified Data.List                     as L
 import qualified Data.Map                      as Map
-import           Data.Maybe                     ( fromJust
-                                                , isJust
-                                                )
+import           Data.Maybe                     ( isJust )
 import           SymbolTable
 import           Types
 import           Utils                          ( isMainDef )
@@ -98,10 +96,11 @@ typeParamBinding :: [AType String] -> [(String, Idx)]
 typeParamBinding targs =
     zipWith (\(TypeParam x) (TypeParam y) -> (x, y)) targs (addTargs targs 0)
 
-checkDup :: String -> [String] -> Either String ()
-checkDup name ns = if length ns /= length (L.nub ns)
+checkDup :: Eq a => String -> [ParamDef a] -> Either String ()
+checkDup name params = if length ns /= length (L.nub ns)
     then Left $ "Arguments of " ++ name ++ " constians duplicated names."
     else Right ()
+    where ns = map paramName params
 
 -- | discover type constructors
 addConstrs :: Program String -> Analysis SymbolTable
@@ -117,7 +116,7 @@ addConstrs (EnumDef name targs csts : ts) = do
     addC targs' ~(CaseDef caseName params (EnumType name _)) = do
         (TableST s@(SymbolTable dn ty f c) lidx idx) <- lift get
         -- check duplicate names
-        liftEither $ checkDup caseName $ map (\(ParamDef n _) -> n) params
+        liftEither $ checkDup caseName params
         -- check if all the params 
         case checkParams targs' s params of
             Left  ss  -> throwError ss
@@ -177,7 +176,7 @@ addFuncSig (FunDef name targs params ret _ : st) = do
     -- local type vars shadows global types
     let targs' = typeParamBinding targs
     -- check duplicate names
-    liftEither $ checkDup name $ map (\(ParamDef n _) -> n) params
+    liftEither $ checkDup name params
     -- abort when already defined
     when (isJust $ Map.lookup name dn) $ throwError $ "Redefinition of " ++ name
     case checkParams targs' s (ParamDef "ret" ret : params) of
@@ -248,7 +247,7 @@ tranfromFunc (FunDef name targs params ret body : st) = do
             Call fun exs     -> case lookupName fun s of
                 Nothing -> throwError $ "Unknown function: " ++ fun
                 Just fx ->
-                    let FunSig _ pms _ = fromJust (Map.lookup fx f)
+                    let Just (FunSig _ pms _) = Map.lookup fx f
                     in  if length pms /= length exs
                             then
                                 throwError
